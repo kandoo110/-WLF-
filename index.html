@@ -181,7 +181,7 @@
 
         .action-grid {
             display: grid;
-            grid-template-columns: 1fr 1fr;
+            grid-template-columns: 1fr;
             gap: 12px;
             width: 100%;
             max-width: 350px;
@@ -191,7 +191,7 @@
             background: var(--card-bg);
             border: 1px solid rgba(255, 255, 255, 0.1);
             color: var(--text-main);
-            padding: 12px;
+            padding: 14px;
             border-radius: 12px;
             font-weight: 600;
             cursor: pointer;
@@ -199,19 +199,18 @@
             align-items: center;
             justify-content: center;
             gap: 8px;
+            font-size: 15px;
         }
 
         .btn-primary {
             background: var(--accent-color);
             color: #000;
             border: none;
-            grid-column: span 2;
         }
 
         #ton-connect-button {
             display: flex;
             justify-content: center;
-            margin-bottom: 5px;
         }
     </style>
 </head>
@@ -221,11 +220,11 @@
         <div class="user-info">
             <div class="avatar" id="userAvatar">U</div>
             <div>
-                <div style="font-weight: bold; font-size: 14px;" id="userName">کاربر مهمان</div>
+                <div style="font-weight: bold; font-size: 14px;" id="userName">کاربر</div>
                 <div style="font-size: 11px; color: var(--text-sub);">شبکه TON</div>
             </div>
         </div>
-        <!-- دکمه رسمی اتصال کیف پول TON Connect -->
+        <!-- دکمه اتصال ولت -->
         <div id="ton-connect-button"></div>
     </div>
 
@@ -258,22 +257,19 @@
         <button class="btn btn-primary" onclick="openClaimModal()">
             🎁 درخواست برداشت (حداقل ۱۰,۰۰۰ توکن)
         </button>
-        <button class="btn" onclick="copyShareLink()">
-            🔗 اشتراک‌گذاری بازی
-        </button>
-        <button class="btn" onclick="alert('به زودی ماموریت‌های جدید اضافه می‌شود.')">
-            📋 ماموریت‌ها
-        </button>
     </div>
 
     <script>
-        // Initialize TON Connect UI
-        const tonConnectUI = new TON_CONNECT_UI.TonConnectUI({
-            manifestUrl: 'https://kandoo110.github.io/wlf-game/tonconnect-manifest.json',
-
-',
-            buttonRootId: 'ton-connect-button'
-        });
+        // Initialize TON Connect UI safely
+        let tonConnectUI;
+        try {
+            tonConnectUI = new TON_CONNECT_UI.TonConnectUI({
+                manifestUrl: 'https://kandoo110.github.io/wlf-game/tonconnect-manifest.json',
+                buttonRootId: 'ton-connect-button'
+            });
+        } catch (e) {
+            console.error("TON Connect Init Error:", e);
+        }
 
         // Init Telegram SDK
         let tg = window.Telegram?.WebApp;
@@ -285,7 +281,7 @@
             }
         }
 
-        // Game State Variables
+        // Game State Variables (Using LocalStorage with fallback)
         let score = parseInt(localStorage.getItem('wlf_score')) || 0;
         let energy = parseInt(localStorage.getItem('wlf_energy')) || 1000;
         const maxEnergy = 1000;
@@ -349,6 +345,7 @@
             energyBar.style.width = `${percentage}%`;
         }
 
+        // Energy Regeneration
         setInterval(() => {
             if (energy < maxEnergy) {
                 energy += 1;
@@ -357,13 +354,18 @@
             }
         }, 1500);
 
-        // Claim Function with TON Connect Wallet Verification
+        // Claim Function
         function openClaimModal() {
-            const currentWallet = tonConnectUI.wallet;
-            
-            if (!currentWallet) {
+            let userAddress = "";
+            try {
+                if (tonConnectUI && tonConnectUI.wallet) {
+                    userAddress = tonConnectUI.wallet.account.address;
+                }
+            } catch(e){}
+
+            if (!userAddress) {
                 alert('لطفاً ابتدا از طریق دکمه بالای صفحه، کیف پول Tonkeeper خود را متصل کنید.');
-                tonConnectUI.openModal();
+                if (tonConnectUI) tonConnectUI.openModal();
                 return;
             }
 
@@ -372,13 +374,7 @@
                 return;
             }
 
-            const userAddress = currentWallet.account.address;
             alert(`درخواست برداشت ${score} توکن $WLF با موفقیت ثبت شد!\nآدرس متصل‌شده:\n${userAddress}`);
-        }
-
-        function copyShareLink() {
-            navigator.clipboard.writeText(window.location.href);
-            alert('لینک بازی کپی شد!');
         }
     </script>
 </body>
