@@ -6,6 +6,8 @@
     <title>WLF Coin - Tap to Earn</title>
     <!-- Telegram Mini App SDK -->
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <!-- TON Connect UI SDK -->
+    <script src="https://unpkg.com/@tonconnect/ui@latest/dist/tonconnect-ui.min.js"></script>
     <style>
         :root {
             --bg-color: #0d0f12;
@@ -206,6 +208,18 @@
             border: none;
         }
 
+        .btn-secondary {
+            background: rgba(243, 186, 47, 0.15);
+            color: var(--accent-color);
+            border: 1px solid rgba(243, 186, 47, 0.3);
+            font-size: 13px;
+        }
+
+        #ton-connect-button {
+            display: flex;
+            justify-content: center;
+        }
+
         /* Guide Card Styling */
         .guide-box {
             width: 100%;
@@ -278,7 +292,8 @@
                 <div style="font-size: 11px; color: var(--text-sub);">شبکه TON</div>
             </div>
         </div>
-        <div style="font-size: 12px; color: var(--accent-color); font-weight: bold;">توکن $WLF</div>
+        <!-- دکمه اتصال خودکار کیف پول TON Connect -->
+        <div id="ton-connect-button"></div>
     </div>
 
     <div class="score-container">
@@ -310,15 +325,33 @@
         <button class="btn btn-primary" onclick="openClaimModal()">
             🎁 ثبت درخواست برداشت توکن
         </button>
+        <!-- دکمه ورود دستی آدرس ولت -->
+        <button class="btn btn-secondary" onclick="openManualWalletModal()">
+            ✏️ ثبت دستی آدرس ولت (در صورت ارور اتصال)
+        </button>
     </div>
 
     <!-- باکس راهنمای کامل روی صفحه -->
     <div class="guide-box">
-        <div class="guide-title">📌 راهنمای رسمی برداشت توکن $WLF:</div>
+        <div class="guide-title">💡 راهنمای اتصال کیف پول و برداشت:</div>
         <div class="guide-text">
-            ۱. حداقل میزان موجودی برای برداشت: <strong>۱۰,۰۰۰ توکن</strong><br>
-            ۲. هزینه پردازش و کارمزد شبکه: <strong>0.03 TON</strong><br>
-            ۳. جهت برداشت، روی دکمه بالا بزنید، آدرس کیف پول خود را وارد کرده و کارمزد را پرداخت کنید تا توکن‌ها ظرف ۲۴ ساعت واریز شوند.
+            ۱. برای اتصال خودکار روی دکمه <strong>Connect Wallet</strong> بالای صفحه بزنید.<br>
+            ۲. اگر به دلیل اختلال <strong>فیلترشکن/اینترنت</strong> ارور دریافت کردید، روی دکمه <strong>«ثبت دستی آدرس ولت»</strong> کلیک کرده و آدرس Tonkeeper خود را وارد کنید.<br>
+            ۳. حداقل میزان موجودی برای برداشت: <strong>۱۰,۰۰۰ توکن $WLF</strong><br>
+            ۴. هزینه پردازش و کارمزد شبکه: <strong>0.03 TON</strong>
+        </div>
+    </div>
+
+    <!-- Modal for Manual Wallet Entry -->
+    <div class="modal" id="manualWalletModal">
+        <div class="modal-content">
+            <h3 style="font-size: 16px; margin-bottom: 10px;">ورود دستی آدرس کیف پول</h3>
+            <p style="font-size: 12px; color: var(--text-sub); line-height: 1.5;">
+                اگر اتصال خودکار Tonkeeper ارور داد، آدرس TON خود را اینجا وارد کنید:
+            </p>
+            <input type="text" class="input-box" id="manualAddressInput" placeholder="EQAUEpGOGqbJy...">
+            <button class="btn btn-primary" style="width: 100%; margin-bottom: 8px;" onclick="saveManualWallet()">ثبت آدرس دستی</button>
+            <button class="btn btn-secondary" style="width: 100%; color: #fff;" onclick="closeManualWalletModal()">انصراف</button>
         </div>
     </div>
 
@@ -344,6 +377,17 @@
     </div>
 
     <script>
+        // Initialize TON Connect UI safely
+        let tonConnectUI;
+        try {
+            tonConnectUI = new TON_CONNECT_UI.TonConnectUI({
+                manifestUrl: 'https://kandoo110.github.io/wlf-game/tonconnect-manifest.json',
+                buttonRootId: 'ton-connect-button'
+            });
+        } catch (e) {
+            console.error("TON Connect Init Error:", e);
+        }
+
         // Init Telegram SDK
         let tg = window.Telegram?.WebApp;
         if (tg) {
@@ -357,6 +401,7 @@
         // Game State Variables
         let score = parseInt(localStorage.getItem('wlf_score')) || 0;
         let energy = parseInt(localStorage.getItem('wlf_energy')) || 1000;
+        let manualWallet = localStorage.getItem('wlf_manual_wallet') || '';
         const maxEnergy = 1000;
 
         const scoreEl = document.getElementById('score');
@@ -426,6 +471,30 @@
                 updateEnergyUI();
             }
         }, 1500);
+
+        // Manual Wallet Modals
+        function openManualWalletModal() {
+            if (manualWallet) {
+                document.getElementById('manualAddressInput').value = manualWallet;
+            }
+            document.getElementById('manualWalletModal').style.display = 'flex';
+        }
+
+        function closeManualWalletModal() {
+            document.getElementById('manualWalletModal').style.display = 'none';
+        }
+
+        function saveManualWallet() {
+            const addr = document.getElementById('manualAddressInput').value.trim();
+            if (addr.length < 10) {
+                alert('لطفاً یک آدرس معتبر TON وارد کنید.');
+                return;
+            }
+            manualWallet = addr;
+            localStorage.setItem('wlf_manual_wallet', manualWallet);
+            alert('آدرس کیف پول شما ثبت شد!');
+            closeManualWalletModal();
+        }
 
         // Claim Modals
         function openClaimModal() {
