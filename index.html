@@ -1,0 +1,457 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>WLF Coin - Tap to Earn</title>
+    <!-- Telegram Mini App SDK -->
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <style>
+        :root {
+            --bg-color: #0d0f12;
+            --card-bg: #1a1d24;
+            --accent-color: #f3ba2f;
+            --accent-hover: #ffca3a;
+            --text-main: #ffffff;
+            --text-sub: #a0a5b5;
+            --danger: #ff4757;
+            --success: #2ed573;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            user-select: none;
+            -webkit-user-select: none;
+            font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: space-between;
+            min-height: 100vh;
+            overflow: hidden;
+            padding: 20px;
+        }
+
+        /* Header / Stats */
+        .header {
+            width: 100%;
+            max-width: 400px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: var(--card-bg);
+            padding: 12px 16px;
+            border-radius: 16px;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .avatar {
+            width: 36px;
+            height: 36px;
+            background: var(--accent-color);
+            color: #000;
+            font-weight: bold;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        /* Score Display */
+        .score-container {
+            text-align: center;
+            margin-top: 15px;
+        }
+
+        .score-title {
+            font-size: 14px;
+            color: var(--text-sub);
+            margin-bottom: 5px;
+        }
+
+        .score-value {
+            font-size: 42px;
+            font-weight: 800;
+            color: var(--accent-color);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            text-shadow: 0 0 20px rgba(243, 186, 47, 0.3);
+        }
+
+        /* Coin Area */
+        .coin-container {
+            position: relative;
+            width: 250px;
+            height: 250px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 20px 0;
+            cursor: pointer;
+        }
+
+        .coin {
+            width: 220px;
+            height: 220px;
+            background: radial-gradient(circle at 30% 30%, #ffe066, #f3ba2f 60%, #b8860b);
+            border-radius: 50%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 0 30px rgba(243, 186, 47, 0.4), inset 0 0 15px rgba(255, 255, 255, 0.6);
+            border: 6px solid #ffd700;
+            transition: transform 0.05s ease;
+        }
+
+        .coin:active {
+            transform: scale(0.95);
+        }
+
+        .coin-symbol {
+            font-size: 32px;
+            font-weight: 900;
+            color: #1a1d24;
+            letter-spacing: 1px;
+        }
+
+        .coin-subtext {
+            font-size: 12px;
+            color: #4a3b00;
+            font-weight: bold;
+        }
+
+        /* Floating Text Animation */
+        .floating-text {
+            position: absolute;
+            font-size: 28px;
+            font-weight: 800;
+            color: var(--accent-color);
+            pointer-events: none;
+            animation: floatUp 0.8s ease-out forwards;
+            text-shadow: 0 2px 5px rgba(0,0,0,0.5);
+            z-index: 100;
+        }
+
+        @keyframes floatUp {
+            0% { opacity: 1; transform: translateY(0) scale(1); }
+            100% { opacity: 0; transform: translateY(-80px) scale(1.2); }
+        }
+
+        /* Energy Bar */
+        .energy-container {
+            width: 100%;
+            max-width: 350px;
+            margin-bottom: 15px;
+        }
+
+        .energy-header {
+            display: flex;
+            justify-content: space-between;
+            font-size: 14px;
+            margin-bottom: 6px;
+            color: var(--text-sub);
+        }
+
+        .energy-bar-outer {
+            width: 100%;
+            height: 12px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 6px;
+            overflow: hidden;
+        }
+
+        .energy-bar-inner {
+            height: 100%;
+            width: 100%;
+            background: linear-gradient(90deg, #f3ba2f, #2ed573);
+            border-radius: 6px;
+            transition: width 0.2s ease;
+        }
+
+        /* Action Buttons */
+        .action-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+            width: 100%;
+            max-width: 350px;
+        }
+
+        .btn {
+            background: var(--card-bg);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            color: var(--text-main);
+            padding: 12px;
+            border-radius: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            transition: background 0.2s;
+        }
+
+        .btn:hover {
+            background: rgba(255, 255, 255, 0.08);
+        }
+
+        .btn-primary {
+            background: var(--accent-color);
+            color: #000;
+            border: none;
+            grid-column: span 2;
+        }
+
+        .btn-primary:hover {
+            background: var(--accent-hover);
+        }
+
+        /* Modal / Wallet Drawer */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(0,0,0,0.8);
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            z-index: 1000;
+        }
+
+        .modal-content {
+            background: var(--card-bg);
+            padding: 24px;
+            border-radius: 20px;
+            width: 100%;
+            max-width: 360px;
+            text-align: center;
+            border: 1px solid rgba(255,255,255,0.1);
+        }
+
+        .input-box {
+            width: 100%;
+            padding: 12px;
+            margin: 15px 0;
+            border-radius: 8px;
+            border: 1px solid rgba(255,255,255,0.2);
+            background: #0d0f12;
+            color: #fff;
+            text-align: center;
+            direction: ltr;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Header -->
+    <div class="header">
+        <div class="user-info">
+            <div class="avatar" id="userAvatar">U</div>
+            <div>
+                <div style="font-weight: bold; font-size: 14px;" id="userName">کاربر مهمان</div>
+                <div style="font-size: 11px; color: var(--text-sub);">شبکه TON</div>
+            </div>
+        </div>
+        <button class="btn" style="padding: 6px 12px; font-size: 12px;" onclick="openWalletModal()">
+            🌐 اتصال کیف پول
+        </button>
+    </div>
+
+    <!-- Score Display -->
+    <div class="score-container">
+        <div class="score-title">موجودی $WLF شما</div>
+        <div class="score-value">
+            <span id="score">0</span>
+            <span style="font-size: 20px;">$WLF</span>
+        </div>
+    </div>
+
+    <!-- Coin Area -->
+    <div class="coin-container" id="coinContainer">
+        <div class="coin" id="coin">
+            <div class="coin-symbol">$WLF</div>
+            <div class="coin-subtext">کلیک کنید</div>
+        </div>
+    </div>
+
+    <!-- Energy Bar -->
+    <div class="energy-container">
+        <div class="energy-header">
+            <span>⚡ انرژی باقی‌مانده</span>
+            <span><strong id="energy">1000</strong> / 1000</span>
+        </div>
+        <div class="energy-bar-outer">
+            <div class="energy-bar-inner" id="energyBar"></div>
+        </div>
+    </div>
+
+    <!-- Action Buttons -->
+    <div class="action-grid">
+        <button class="btn btn-primary" onclick="openClaimModal()">
+            🎁 دریافت / برداشت توکن
+        </button>
+        <button class="btn" onclick="copyShareLink()">
+            🔗 لینک اینستاگرام / تلگرام
+        </button>
+        <button class="btn" onclick="alert('به زودی کارهای بیشتری برای گرفتن سکه اضافه می‌شود.')">
+            📋 ماموریت‌ها
+        </button>
+    </div>
+
+    <!-- Wallet Modal -->
+    <div class="modal" id="walletModal">
+        <div class="modal-content">
+            <h3>اتصال کیف پول TON</h3>
+            <p style="font-size: 12px; color: var(--text-sub); margin-top: 5px;">
+                آدرس کیف پول Tonkeeper یا TON خود را وارد کنید:
+            </p>
+            <input type="text" class="input-box" id="walletAddress" placeholder="EQAUEpGOGqbJy...">
+            <button class="btn btn-primary" onclick="saveWallet()">ثبت کیف پول</button>
+            <button class="btn" style="width: 100%; margin-top: 8px;" onclick="closeWalletModal()">انصراف</button>
+        </div>
+    </div>
+
+    <script>
+        // Init Telegram WebApp
+        let tg = window.Telegram?.WebApp;
+        if (tg) {
+            tg.expand();
+            if (tg.initDataUnsafe?.user) {
+                document.getElementById('userName').innerText = tg.initDataUnsafe.user.first_name;
+                document.getElementById('userAvatar').innerText = tg.initDataUnsafe.user.first_name[0];
+            }
+        }
+
+        // Game State Variables
+        let score = parseInt(localStorage.getItem('wlf_score')) || 0;
+        let energy = parseInt(localStorage.getItem('wlf_energy')) || 1000;
+        const maxEnergy = 1000;
+        let wallet = localStorage.getItem('wlf_wallet') || '';
+
+        // UI Elements
+        const scoreEl = document.getElementById('score');
+        const energyEl = document.getElementById('energy');
+        const energyBar = document.getElementById('energyBar');
+        const coinContainer = document.getElementById('coinContainer');
+
+        // Render Initial Values
+        scoreEl.innerText = score.toLocaleString();
+        updateEnergyUI();
+
+        // Click / Tap Event
+        coinContainer.addEventListener('pointerdown', (e) => {
+            if (energy <= 0) return;
+
+            // Update State
+            score += 1;
+            energy -= 1;
+            
+            // Save local
+            localStorage.setItem('wlf_score', score);
+            localStorage.setItem('wlf_energy', energy);
+
+            // UI Updates
+            scoreEl.innerText = score.toLocaleString();
+            updateEnergyUI();
+
+            // Create Floating Text
+            createFloatingText(e.clientX, e.clientY);
+
+            // Telegram Haptic Feedback
+            if (tg && tg.HapticFeedback) {
+                tg.HapticFeedback.impactOccurred('light');
+            }
+        });
+
+        function createFloatingText(x, y) {
+            const rect = coinContainer.getBoundingClientRect();
+            const text = document.createElement('div');
+            text.className = 'floating-text';
+            text.innerText = '+1';
+            
+            // Position near touch
+            text.style.left = `${x - rect.left - 15}px`;
+            text.style.top = `${y - rect.top - 30}px`;
+
+            coinContainer.appendChild(text);
+
+            setTimeout(() => text.remove(), 800);
+        }
+
+        function updateEnergyUI() {
+            energyEl.innerText = energy;
+            const percentage = (energy / maxEnergy) * 100;
+            energyBar.style.width = `${percentage}%`;
+        }
+
+        // Energy Regeneration Loop (Every 1.5s recovers 1 energy)
+        setInterval(() => {
+            if (energy < maxEnergy) {
+                energy += 1;
+                localStorage.setItem('wlf_energy', energy);
+                updateEnergyUI();
+            }
+        }, 1500);
+
+        // Wallet Handlers
+        function openWalletModal() {
+            if (wallet) {
+                document.getElementById('walletAddress').value = wallet;
+            }
+            document.getElementById('walletModal').style.display = 'flex';
+        }
+
+        function closeWalletModal() {
+            document.getElementById('walletModal').style.display = 'none';
+        }
+
+        function saveWallet() {
+            const addr = document.getElementById('walletAddress').value.trim();
+            if (addr.length < 10) {
+                alert('لطفاً یک آدرس معتبر وارد کنید.');
+                return;
+            }
+            wallet = addr;
+            localStorage.setItem('wlf_wallet', wallet);
+            alert('کیف پول شما با موفقیت ثبت شد!');
+            closeWalletModal();
+        }
+
+        function openClaimModal() {
+            if (!wallet) {
+                alert('لطفاً ابتدا کیف پول TON خود را متصل کنید.');
+                openWalletModal();
+                return;
+            }
+            if (score < 1000) {
+                alert('حداقل میزان موجودی برای برداشت ۱,۰۰۰ توکن $WLF است.');
+                return;
+            }
+            alert(`درخواست برداشت ${score} توکن $WLF برای آدرس زیر ثبت شد:\n${wallet}`);
+        }
+
+        function copyShareLink() {
+            const shareUrl = window.location.href;
+            navigator.clipboard.writeText(shareUrl);
+            alert('لینک بازی کپی شد! می‌توانید آن را در اینستاگرام (بیو یا استوری) و تلگرام بگذارید.');
+        }
+    </script>
+</body>
+</html>
