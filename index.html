@@ -305,7 +305,7 @@
     <!-- Action Buttons -->
     <div class="action-grid">
         <button class="btn btn-primary" onclick="openClaimModal()">
-            🎁 دریافت / برداشت توکن
+            🎁 دریافت / برداشت توکن (حداقل ۱۰,۰۰۰)
         </button>
         <button class="btn" onclick="copyShareLink()">
             🔗 لینک اینستاگرام / تلگرام
@@ -423,7 +423,7 @@
         }
 
         function saveWallet() {
-            const addr = document.getElementById('walletAddress').value.trim();
+            const addr = document.getElementById('walletAddress'].value.trim();
             if (addr.length < 10) {
                 alert('لطفاً یک آدرس معتبر وارد کنید.');
                 return;
@@ -440,8 +440,8 @@
                 openWalletModal();
                 return;
             }
-            if (score < 1000) {
-                alert('حداقل میزان موجودی برای برداشت ۱,۰۰۰ توکن $WLF است.');
+            if (score < 10000) {
+                alert('حداقل میزان موجودی برای برداشت ۱۰,۰۰۰ توکن $WLF است.');
                 return;
             }
             alert(`درخواست برداشت ${score} توکن $WLF برای آدرس زیر ثبت شد:\n${wallet}`);
