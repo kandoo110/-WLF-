@@ -2,7 +2,7 @@
 <html lang="fa" dir="rtl">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, maximum-scale=1.0">
     <title>WLF Coin - Tap to Earn</title>
     <!-- Telegram Mini App SDK -->
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
@@ -14,8 +14,6 @@
             --accent-hover: #ffca3a;
             --text-main: #ffffff;
             --text-sub: #a0a5b5;
-            --danger: #ff4757;
-            --success: #2ed573;
         }
 
         * {
@@ -24,7 +22,8 @@
             padding: 0;
             user-select: none;
             -webkit-user-select: none;
-            font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            touch-action: manipulation;
+            font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
         }
 
         body {
@@ -39,7 +38,6 @@
             padding: 20px;
         }
 
-        /* Header / Stats */
         .header {
             width: 100%;
             max-width: 400px;
@@ -70,7 +68,6 @@
             justify-content: center;
         }
 
-        /* Score Display */
         .score-container {
             text-align: center;
             margin-top: 15px;
@@ -93,11 +90,10 @@
             text-shadow: 0 0 20px rgba(243, 186, 47, 0.3);
         }
 
-        /* Coin Area */
         .coin-container {
             position: relative;
-            width: 250px;
-            height: 250px;
+            width: 240px;
+            height: 240px;
             display: flex;
             align-items: center;
             justify-content: center;
@@ -127,7 +123,6 @@
             font-size: 32px;
             font-weight: 900;
             color: #1a1d24;
-            letter-spacing: 1px;
         }
 
         .coin-subtext {
@@ -136,7 +131,6 @@
             font-weight: bold;
         }
 
-        /* Floating Text Animation */
         .floating-text {
             position: absolute;
             font-size: 28px;
@@ -153,7 +147,6 @@
             100% { opacity: 0; transform: translateY(-80px) scale(1.2); }
         }
 
-        /* Energy Bar */
         .energy-container {
             width: 100%;
             max-width: 350px;
@@ -184,7 +177,6 @@
             transition: width 0.2s ease;
         }
 
-        /* Action Buttons */
         .action-grid {
             display: grid;
             grid-template-columns: 1fr 1fr;
@@ -205,11 +197,6 @@
             align-items: center;
             justify-content: center;
             gap: 8px;
-            transition: background 0.2s;
-        }
-
-        .btn:hover {
-            background: rgba(255, 255, 255, 0.08);
         }
 
         .btn-primary {
@@ -219,11 +206,6 @@
             grid-column: span 2;
         }
 
-        .btn-primary:hover {
-            background: var(--accent-hover);
-        }
-
-        /* Modal / Wallet Drawer */
         .modal {
             display: none;
             position: fixed;
@@ -260,7 +242,6 @@
 </head>
 <body>
 
-    <!-- Header -->
     <div class="header">
         <div class="user-info">
             <div class="avatar" id="userAvatar">U</div>
@@ -274,7 +255,6 @@
         </button>
     </div>
 
-    <!-- Score Display -->
     <div class="score-container">
         <div class="score-title">موجودی $WLF شما</div>
         <div class="score-value">
@@ -283,7 +263,6 @@
         </div>
     </div>
 
-    <!-- Coin Area -->
     <div class="coin-container" id="coinContainer">
         <div class="coin" id="coin">
             <div class="coin-symbol">$WLF</div>
@@ -291,7 +270,6 @@
         </div>
     </div>
 
-    <!-- Energy Bar -->
     <div class="energy-container">
         <div class="energy-header">
             <span>⚡ انرژی باقی‌مانده</span>
@@ -302,7 +280,6 @@
         </div>
     </div>
 
-    <!-- Action Buttons -->
     <div class="action-grid">
         <button class="btn btn-primary" onclick="openClaimModal()">
             🎁 دریافت / برداشت توکن (حداقل ۱۰,۰۰۰)
@@ -310,18 +287,15 @@
         <button class="btn" onclick="copyShareLink()">
             🔗 لینک اینستاگرام / تلگرام
         </button>
-        <button class="btn" onclick="alert('به زودی کارهای بیشتری برای گرفتن سکه اضافه می‌شود.')">
+        <button class="btn" onclick="alert('به زودی کارهای بیشتری اضافه می‌شود.')">
             📋 ماموریت‌ها
         </button>
     </div>
 
-    <!-- Wallet Modal -->
     <div class="modal" id="walletModal">
         <div class="modal-content">
             <h3>اتصال کیف پول TON</h3>
-            <p style="font-size: 12px; color: var(--text-sub); margin-top: 5px;">
-                آدرس کیف پول Tonkeeper یا TON خود را وارد کنید:
-            </p>
+            <p style="font-size: 12px; color: var(--text-sub); margin-top: 5px;">آدرس کیف پول Tonkeeper را وارد کنید:</p>
             <input type="text" class="input-box" id="walletAddress" placeholder="EQAUEpGOGqbJy...">
             <button class="btn btn-primary" onclick="saveWallet()">ثبت کیف پول</button>
             <button class="btn" style="width: 100%; margin-top: 8px;" onclick="closeWalletModal()">انصراف</button>
@@ -329,7 +303,24 @@
     </div>
 
     <script>
-        // Init Telegram WebApp
+        // Universal Cookie Helpers for In-App Browsers (Instagram/TikTok)
+        function setCookie(name, value) {
+            let d = new Date();
+            d.setTime(d.getTime() + (365*24*60*60*1000));
+            document.cookie = name + "=" + value + ";expires=" + d.toUTCString() + ";path=/";
+        }
+
+        function getCookie(name) {
+            let cname = name + "=";
+            let ca = document.cookie.split(';');
+            for(let i = 0; i < ca.length; i++) {
+                let c = ca[i].trim();
+                if (c.indexOf(cname) == 0) return c.substring(cname.length, c.length);
+            }
+            return "";
+        }
+
+        // Init Telegram SDK
         let tg = window.Telegram?.WebApp;
         if (tg) {
             tg.expand();
@@ -339,45 +330,71 @@
             }
         }
 
-        // Game State Variables
-        let score = parseInt(localStorage.getItem('wlf_score')) || 0;
-        let energy = parseInt(localStorage.getItem('wlf_energy')) || 1000;
+        // Hybrid Storage Loader
+        let score = parseInt(getCookie('wlf_score')) || parseInt(localStorage.getItem('wlf_score')) || 0;
+        let energy = parseInt(getCookie('wlf_energy')) || parseInt(localStorage.getItem('wlf_energy')) || 1000;
         const maxEnergy = 1000;
-        let wallet = localStorage.getItem('wlf_wallet') || '';
+        let wallet = getCookie('wlf_wallet') || localStorage.getItem('wlf_wallet') || '';
 
-        // UI Elements
+        // If inside Telegram Cloud Storage, sync
+        if (tg && tg.CloudStorage) {
+            tg.CloudStorage.getItem('wlf_score', (err, value) => {
+                if (!err && value) {
+                    score = Math.max(score, parseInt(value));
+                    scoreEl.innerText = score.toLocaleString();
+                }
+            });
+        }
+
         const scoreEl = document.getElementById('score');
         const energyEl = document.getElementById('energy');
         const energyBar = document.getElementById('energyBar');
         const coinContainer = document.getElementById('coinContainer');
 
-        // Render Initial Values
         scoreEl.innerText = score.toLocaleString();
         updateEnergyUI();
 
-        // Click / Tap Event
-        coinContainer.addEventListener('pointerdown', (e) => {
+        // Save Function Across All Platforms
+        function saveProgress() {
+            setCookie('wlf_score', score);
+            setCookie('wlf_energy', energy);
+            try {
+                localStorage.setItem('wlf_score', score);
+                localStorage.setItem('wlf_energy', energy);
+            } catch(e){}
+
+            if (tg && tg.CloudStorage) {
+                tg.CloudStorage.setItem('wlf_score', score.toString());
+            }
+        }
+
+        // Multi-touch & Click Event Fix for Instagram
+        function handleTap(e) {
+            e.preventDefault();
             if (energy <= 0) return;
 
-            // Update State
             score += 1;
             energy -= 1;
-            
-            // Save local
-            localStorage.setItem('wlf_score', score);
-            localStorage.setItem('wlf_energy', energy);
 
-            // UI Updates
+            saveProgress();
+
             scoreEl.innerText = score.toLocaleString();
             updateEnergyUI();
 
-            // Create Floating Text
-            createFloatingText(e.clientX, e.clientY);
+            // Client X/Y extraction for Touch or Mouse
+            let clientX = e.clientX || (e.touches && e.touches[0] ? e.touches[0].clientX : window.innerWidth/2);
+            let clientY = e.clientY || (e.touches && e.touches[0] ? e.touches[0].clientY : window.innerHeight/2);
 
-            // Telegram Haptic Feedback
+            createFloatingText(clientX, clientY);
+
             if (tg && tg.HapticFeedback) {
                 tg.HapticFeedback.impactOccurred('light');
             }
+        }
+
+        coinContainer.addEventListener('touchstart', handleTap, {passive: false});
+        coinContainer.addEventListener('mousedown', (e) => {
+            if (!('ontouchstart' in window)) handleTap(e);
         });
 
         function createFloatingText(x, y) {
@@ -385,13 +402,9 @@
             const text = document.createElement('div');
             text.className = 'floating-text';
             text.innerText = '+1';
-            
-            // Position near touch
             text.style.left = `${x - rect.left - 15}px`;
             text.style.top = `${y - rect.top - 30}px`;
-
             coinContainer.appendChild(text);
-
             setTimeout(() => text.remove(), 800);
         }
 
@@ -401,20 +414,16 @@
             energyBar.style.width = `${percentage}%`;
         }
 
-        // Energy Regeneration Loop (Every 1.5s recovers 1 energy)
         setInterval(() => {
             if (energy < maxEnergy) {
                 energy += 1;
-                localStorage.setItem('wlf_energy', energy);
+                saveProgress();
                 updateEnergyUI();
             }
         }, 1500);
 
-        // Wallet Handlers
         function openWalletModal() {
-            if (wallet) {
-                document.getElementById('walletAddress').value = wallet;
-            }
+            if (wallet) document.getElementById('walletAddress').value = wallet;
             document.getElementById('walletModal').style.display = 'flex';
         }
 
@@ -423,14 +432,15 @@
         }
 
         function saveWallet() {
-            const addr = document.getElementById('walletAddress'].value.trim();
+            const addr = document.getElementById('walletAddress').value.trim();
             if (addr.length < 10) {
                 alert('لطفاً یک آدرس معتبر وارد کنید.');
                 return;
             }
             wallet = addr;
-            localStorage.setItem('wlf_wallet', wallet);
-            alert('کیف پول شما با موفقیت ثبت شد!');
+            setCookie('wlf_wallet', wallet);
+            try { localStorage.setItem('wlf_wallet', wallet); } catch(e){}
+            alert('کیف پول شما ثبت شد!');
             closeWalletModal();
         }
 
@@ -444,13 +454,12 @@
                 alert('حداقل میزان موجودی برای برداشت ۱۰,۰۰۰ توکن $WLF است.');
                 return;
             }
-            alert(`درخواست برداشت ${score} توکن $WLF برای آدرس زیر ثبت شد:\n${wallet}`);
+            alert(`درخواست برداشت ${score} توکن $WLF ثبت شد:\n${wallet}`);
         }
 
         function copyShareLink() {
-            const shareUrl = window.location.href;
-            navigator.clipboard.writeText(shareUrl);
-            alert('لینک بازی کپی شد! می‌توانید آن را در اینستاگرام (بیو یا استوری) و تلگرام بگذارید.');
+            navigator.clipboard.writeText(window.location.href);
+            alert('لینک کپی شد!');
         }
     </script>
 </body>
