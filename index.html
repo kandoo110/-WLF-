@@ -34,10 +34,10 @@
             display: flex;
             flex-direction: column;
             align-items: center;
-            justify-content: space-between;
+            justify-content: flex-start;
             min-height: 100vh;
-            overflow: hidden;
-            padding: 20px;
+            overflow-y: auto;
+            padding: 20px 15px;
         }
 
         .header {
@@ -94,18 +94,18 @@
 
         .coin-container {
             position: relative;
-            width: 240px;
-            height: 240px;
+            width: 220px;
+            height: 220px;
             display: flex;
             align-items: center;
             justify-content: center;
-            margin: 20px 0;
+            margin: 15px 0;
             cursor: pointer;
         }
 
         .coin {
-            width: 220px;
-            height: 220px;
+            width: 200px;
+            height: 200px;
             background: radial-gradient(circle at 30% 30%, #ffe066, #f3ba2f 60%, #b8860b);
             border-radius: 50%;
             display: flex;
@@ -122,7 +122,7 @@
         }
 
         .coin-symbol {
-            font-size: 32px;
+            font-size: 30px;
             font-weight: 900;
             color: #1a1d24;
         }
@@ -209,8 +209,9 @@
         }
 
         .btn-secondary {
-            background: rgba(255, 255, 255, 0.08);
-            color: var(--text-sub);
+            background: rgba(243, 186, 47, 0.15);
+            color: var(--accent-color);
+            border: 1px solid rgba(243, 186, 47, 0.3);
             font-size: 13px;
         }
 
@@ -219,7 +220,35 @@
             justify-content: center;
         }
 
-        /* Modal styling for manual wallet entry */
+        /* Guide Card Styling */
+        .guide-box {
+            width: 100%;
+            max-width: 350px;
+            background: var(--card-bg);
+            border: 1px solid rgba(243, 186, 47, 0.2);
+            border-radius: 14px;
+            padding: 14px;
+            margin-top: 15px;
+            text-align: right;
+            direction: rtl;
+        }
+
+        .guide-title {
+            color: var(--accent-color);
+            font-size: 14px;
+            font-weight: bold;
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .guide-text {
+            color: var(--text-sub);
+            font-size: 12px;
+            line-height: 1.7;
+        }
+
         .modal {
             display: none;
             position: fixed;
@@ -297,10 +326,19 @@
         <button class="btn btn-primary" onclick="openClaimModal()">
             🎁 درخواست برداشت (حداقل ۱۰,۰۰۰ توکن)
         </button>
-        <!-- دکمه جایگزین برای ثبت دستی آدرس ولت در صورت بروز ارور اینترنت -->
         <button class="btn btn-secondary" onclick="openManualWalletModal()">
-            ⚙️ ثبت دستی آدرس ولت (مخصوص زمان ارور اتصال)
+            ✏️ ثبت دستی آدرس ولت (در صورت ارور)
         </button>
+    </div>
+
+    <!-- باکس راهنمای اتصال روی صفحه -->
+    <div class="guide-box">
+        <div class="guide-title">💡 راهنمای اتصال کیف پول:</div>
+        <div class="guide-text">
+            ۱. برای اتصال خودکار روی <strong>Connect Wallet</strong> بالای صفحه بزنید.<br>
+            ۲. اگر به دلیل اختلال <strong>فیلترشکن/اینترنت</strong> ارور دریافت کردید، روی دکمه <strong>«ثبت دستی آدرس ولت»</strong> کلیک کرده و آدرس Tonkeeper خود را وارد کنید.<br>
+            ۳. با رسیدن به ۱۰,۰۰۰ توکن $WLF می‌توانید درخواست برداشت دهید.
+        </div>
     </div>
 
     <!-- Modal for Manual Wallet Entry -->
@@ -308,11 +346,11 @@
         <div class="modal-content">
             <h3 style="font-size: 16px; margin-bottom: 10px;">ورود دستی آدرس کیف پول</h3>
             <p style="font-size: 12px; color: var(--text-sub); line-height: 1.5;">
-                اگر اتصال خودکار Tonkeeper به دلیل اختلال اینترنت ارور داد، آدرس TON خود را اینجا وارد کنید:
+                اگر اتصال خودکار Tonkeeper ارور داد، آدرس TON خود را اینجا وارد کنید:
             </p>
             <input type="text" class="input-box" id="manualAddressInput" placeholder="EQAUEpGOGqbJy...">
             <button class="btn btn-primary" style="width: 100%; margin-bottom: 8px;" onclick="saveManualWallet()">ثبت آدرس دستی</button>
-            <button class="btn btn-secondary" style="width: 100%;" onclick="closeManualWalletModal()">انصراف</button>
+            <button class="btn btn-secondary" style="width: 100%; color: #fff;" onclick="closeManualWalletModal()">انصراف</button>
         </div>
     </div>
 
@@ -432,28 +470,26 @@
             }
             manualWallet = addr;
             localStorage.setItem('wlf_manual_wallet', manualWallet);
-            alert('آدرس کیف پول شما به صورت دستی ثبت شد!');
+            alert('آدرس کیف پول شما ثبت شد!');
             closeManualWalletModal();
         }
 
-        // Claim Function with Auto or Manual Wallet Check
+        // Claim Function
         function openClaimModal() {
             let userAddress = "";
             
-            // First check automatic connection
             try {
                 if (tonConnectUI && tonConnectUI.wallet) {
                     userAddress = tonConnectUI.wallet.account.address;
                 }
             } catch(e){}
 
-            // If automatic failed, check manual entry
             if (!userAddress && manualWallet) {
                 userAddress = manualWallet;
             }
 
             if (!userAddress) {
-                alert('لطفاً یا کیف پول خود را از بالا متصل کنید، یا از طریق دکمه «ثبت دستی آدرس ولت» آدرس خود را وارد کنید.');
+                alert('لطفاً ابتدا از دکمه «ثبت دستی آدرس ولت» یا دکمه بالای صفحه آدرس خود را ثبت کنید.');
                 return;
             }
 
@@ -462,7 +498,7 @@
                 return;
             }
 
-            alert(`درخواست برداشت ${score} توکن $WLF با موفقیت ثبت شد!\nآدرس ثبت‌شده:\n${userAddress}`);
+            alert(`درخواست برداشت ${score} توکن $WLF ثبت شد!\nآدرس ولت:\n${userAddress}`);
         }
     </script>
 </body>
