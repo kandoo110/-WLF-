@@ -182,7 +182,7 @@
         .action-grid {
             display: grid;
             grid-template-columns: 1fr;
-            gap: 12px;
+            gap: 10px;
             width: 100%;
             max-width: 350px;
         }
@@ -191,7 +191,7 @@
             background: var(--card-bg);
             border: 1px solid rgba(255, 255, 255, 0.1);
             color: var(--text-main);
-            padding: 14px;
+            padding: 12px;
             border-radius: 12px;
             font-weight: 600;
             cursor: pointer;
@@ -199,7 +199,7 @@
             align-items: center;
             justify-content: center;
             gap: 8px;
-            font-size: 15px;
+            font-size: 14px;
         }
 
         .btn-primary {
@@ -208,9 +208,49 @@
             border: none;
         }
 
+        .btn-secondary {
+            background: rgba(255, 255, 255, 0.08);
+            color: var(--text-sub);
+            font-size: 13px;
+        }
+
         #ton-connect-button {
             display: flex;
             justify-content: center;
+        }
+
+        /* Modal styling for manual wallet entry */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(0,0,0,0.8);
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            z-index: 1000;
+        }
+
+        .modal-content {
+            background: var(--card-bg);
+            padding: 24px;
+            border-radius: 20px;
+            width: 100%;
+            max-width: 360px;
+            text-align: center;
+            border: 1px solid rgba(255,255,255,0.1);
+        }
+
+        .input-box {
+            width: 100%;
+            padding: 12px;
+            margin: 15px 0;
+            border-radius: 8px;
+            border: 1px solid rgba(255,255,255,0.2);
+            background: #0d0f12;
+            color: #fff;
+            text-align: center;
+            direction: ltr;
         }
     </style>
 </head>
@@ -224,7 +264,7 @@
                 <div style="font-size: 11px; color: var(--text-sub);">شبکه TON</div>
             </div>
         </div>
-        <!-- دکمه اتصال ولت -->
+        <!-- دکمه اتصال ولت خودکار -->
         <div id="ton-connect-button"></div>
     </div>
 
@@ -257,6 +297,23 @@
         <button class="btn btn-primary" onclick="openClaimModal()">
             🎁 درخواست برداشت (حداقل ۱۰,۰۰۰ توکن)
         </button>
+        <!-- دکمه جایگزین برای ثبت دستی آدرس ولت در صورت بروز ارور اینترنت -->
+        <button class="btn btn-secondary" onclick="openManualWalletModal()">
+            ⚙️ ثبت دستی آدرس ولت (مخصوص زمان ارور اتصال)
+        </button>
+    </div>
+
+    <!-- Modal for Manual Wallet Entry -->
+    <div class="modal" id="manualWalletModal">
+        <div class="modal-content">
+            <h3 style="font-size: 16px; margin-bottom: 10px;">ورود دستی آدرس کیف پول</h3>
+            <p style="font-size: 12px; color: var(--text-sub); line-height: 1.5;">
+                اگر اتصال خودکار Tonkeeper به دلیل اختلال اینترنت ارور داد، آدرس TON خود را اینجا وارد کنید:
+            </p>
+            <input type="text" class="input-box" id="manualAddressInput" placeholder="EQAUEpGOGqbJy...">
+            <button class="btn btn-primary" style="width: 100%; margin-bottom: 8px;" onclick="saveManualWallet()">ثبت آدرس دستی</button>
+            <button class="btn btn-secondary" style="width: 100%;" onclick="closeManualWalletModal()">انصراف</button>
+        </div>
     </div>
 
     <script>
@@ -281,9 +338,10 @@
             }
         }
 
-        // Game State Variables (Using LocalStorage with fallback)
+        // Game State Variables
         let score = parseInt(localStorage.getItem('wlf_score')) || 0;
         let energy = parseInt(localStorage.getItem('wlf_energy')) || 1000;
+        let manualWallet = localStorage.getItem('wlf_manual_wallet') || '';
         const maxEnergy = 1000;
 
         const scoreEl = document.getElementById('score');
@@ -354,18 +412,48 @@
             }
         }, 1500);
 
-        // Claim Function
+        // Manual Wallet Modals
+        function openManualWalletModal() {
+            if (manualWallet) {
+                document.getElementById('manualAddressInput').value = manualWallet;
+            }
+            document.getElementById('manualWalletModal').style.display = 'flex';
+        }
+
+        function closeManualWalletModal() {
+            document.getElementById('manualWalletModal').style.display = 'none';
+        }
+
+        function saveManualWallet() {
+            const addr = document.getElementById('manualAddressInput').value.trim();
+            if (addr.length < 10) {
+                alert('لطفاً یک آدرس معتبر TON وارد کنید.');
+                return;
+            }
+            manualWallet = addr;
+            localStorage.setItem('wlf_manual_wallet', manualWallet);
+            alert('آدرس کیف پول شما به صورت دستی ثبت شد!');
+            closeManualWalletModal();
+        }
+
+        // Claim Function with Auto or Manual Wallet Check
         function openClaimModal() {
             let userAddress = "";
+            
+            // First check automatic connection
             try {
                 if (tonConnectUI && tonConnectUI.wallet) {
                     userAddress = tonConnectUI.wallet.account.address;
                 }
             } catch(e){}
 
+            // If automatic failed, check manual entry
+            if (!userAddress && manualWallet) {
+                userAddress = manualWallet;
+            }
+
             if (!userAddress) {
-                alert('لطفاً ابتدا از طریق دکمه بالای صفحه، کیف پول Tonkeeper خود را متصل کنید.');
-                if (tonConnectUI) tonConnectUI.openModal();
+                alert('لطفاً یا کیف پول خود را از بالا متصل کنید، یا از طریق دکمه «ثبت دستی آدرس ولت» آدرس خود را وارد کنید.');
                 return;
             }
 
@@ -374,7 +462,7 @@
                 return;
             }
 
-            alert(`درخواست برداشت ${score} توکن $WLF با موفقیت ثبت شد!\nآدرس متصل‌شده:\n${userAddress}`);
+            alert(`درخواست برداشت ${score} توکن $WLF با موفقیت ثبت شد!\nآدرس ثبت‌شده:\n${userAddress}`);
         }
     </script>
 </body>
