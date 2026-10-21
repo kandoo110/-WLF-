@@ -6,6 +6,8 @@
     <title>WLF Coin - Tap to Earn</title>
     <!-- Telegram Mini App SDK -->
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <!-- TON Connect UI SDK -->
+    <script src="https://unpkg.com/@tonconnect/ui@latest/dist/tonconnect-ui.min.js"></script>
     <style>
         :root {
             --bg-color: #0d0f12;
@@ -206,37 +208,10 @@
             grid-column: span 2;
         }
 
-        .modal {
-            display: none;
-            position: fixed;
-            top: 0; left: 0; right: 0; bottom: 0;
-            background: rgba(0,0,0,0.8);
-            align-items: center;
+        #ton-connect-button {
+            display: flex;
             justify-content: center;
-            padding: 20px;
-            z-index: 1000;
-        }
-
-        .modal-content {
-            background: var(--card-bg);
-            padding: 24px;
-            border-radius: 20px;
-            width: 100%;
-            max-width: 360px;
-            text-align: center;
-            border: 1px solid rgba(255,255,255,0.1);
-        }
-
-        .input-box {
-            width: 100%;
-            padding: 12px;
-            margin: 15px 0;
-            border-radius: 8px;
-            border: 1px solid rgba(255,255,255,0.2);
-            background: #0d0f12;
-            color: #fff;
-            text-align: center;
-            direction: ltr;
+            margin-bottom: 5px;
         }
     </style>
 </head>
@@ -250,9 +225,8 @@
                 <div style="font-size: 11px; color: var(--text-sub);">شبکه TON</div>
             </div>
         </div>
-        <button class="btn" style="padding: 6px 12px; font-size: 12px;" onclick="openWalletModal()">
-            🌐 اتصال کیف پول
-        </button>
+        <!-- دکمه رسمی اتصال کیف پول TON Connect -->
+        <div id="ton-connect-button"></div>
     </div>
 
     <div class="score-container">
@@ -282,43 +256,22 @@
 
     <div class="action-grid">
         <button class="btn btn-primary" onclick="openClaimModal()">
-            🎁 دریافت / برداشت توکن (حداقل ۱۰,۰۰۰)
+            🎁 درخواست برداشت (حداقل ۱۰,۰۰۰ توکن)
         </button>
         <button class="btn" onclick="copyShareLink()">
-            🔗 لینک اینستاگرام / تلگرام
+            🔗 اشتراک‌گذاری بازی
         </button>
-        <button class="btn" onclick="alert('به زودی کارهای بیشتری اضافه می‌شود.')">
+        <button class="btn" onclick="alert('به زودی ماموریت‌های جدید اضافه می‌شود.')">
             📋 ماموریت‌ها
         </button>
     </div>
 
-    <div class="modal" id="walletModal">
-        <div class="modal-content">
-            <h3>اتصال کیف پول TON</h3>
-            <p style="font-size: 12px; color: var(--text-sub); margin-top: 5px;">آدرس کیف پول Tonkeeper را وارد کنید:</p>
-            <input type="text" class="input-box" id="walletAddress" placeholder="EQAUEpGOGqbJy...">
-            <button class="btn btn-primary" onclick="saveWallet()">ثبت کیف پول</button>
-            <button class="btn" style="width: 100%; margin-top: 8px;" onclick="closeWalletModal()">انصراف</button>
-        </div>
-    </div>
-
     <script>
-        // Universal Cookie Helpers for In-App Browsers (Instagram/TikTok)
-        function setCookie(name, value) {
-            let d = new Date();
-            d.setTime(d.getTime() + (365*24*60*60*1000));
-            document.cookie = name + "=" + value + ";expires=" + d.toUTCString() + ";path=/";
-        }
-
-        function getCookie(name) {
-            let cname = name + "=";
-            let ca = document.cookie.split(';');
-            for(let i = 0; i < ca.length; i++) {
-                let c = ca[i].trim();
-                if (c.indexOf(cname) == 0) return c.substring(cname.length, c.length);
-            }
-            return "";
-        }
+        // Initialize TON Connect UI
+        const tonConnectUI = new TON_CONNECT_UI.TonConnectUI({
+            manifestUrl: 'https://raw.githubusercontent.com/ton-connect/demos/main/ton-connect-manifest.json',
+            buttonRootId: 'ton-connect-button'
+        });
 
         // Init Telegram SDK
         let tg = window.Telegram?.WebApp;
@@ -330,21 +283,10 @@
             }
         }
 
-        // Hybrid Storage Loader
-        let score = parseInt(getCookie('wlf_score')) || parseInt(localStorage.getItem('wlf_score')) || 0;
-        let energy = parseInt(getCookie('wlf_energy')) || parseInt(localStorage.getItem('wlf_energy')) || 1000;
+        // Game State Variables
+        let score = parseInt(localStorage.getItem('wlf_score')) || 0;
+        let energy = parseInt(localStorage.getItem('wlf_energy')) || 1000;
         const maxEnergy = 1000;
-        let wallet = getCookie('wlf_wallet') || localStorage.getItem('wlf_wallet') || '';
-
-        // If inside Telegram Cloud Storage, sync
-        if (tg && tg.CloudStorage) {
-            tg.CloudStorage.getItem('wlf_score', (err, value) => {
-                if (!err && value) {
-                    score = Math.max(score, parseInt(value));
-                    scoreEl.innerText = score.toLocaleString();
-                }
-            });
-        }
 
         const scoreEl = document.getElementById('score');
         const energyEl = document.getElementById('energy');
@@ -354,34 +296,25 @@
         scoreEl.innerText = score.toLocaleString();
         updateEnergyUI();
 
-        // Save Function Across All Platforms
         function saveProgress() {
-            setCookie('wlf_score', score);
-            setCookie('wlf_energy', energy);
             try {
                 localStorage.setItem('wlf_score', score);
                 localStorage.setItem('wlf_energy', energy);
             } catch(e){}
-
-            if (tg && tg.CloudStorage) {
-                tg.CloudStorage.setItem('wlf_score', score.toString());
-            }
         }
 
-        // Multi-touch & Click Event Fix for Instagram
+        // Tap Event Handler
         function handleTap(e) {
             e.preventDefault();
             if (energy <= 0) return;
 
             score += 1;
             energy -= 1;
-
             saveProgress();
 
             scoreEl.innerText = score.toLocaleString();
             updateEnergyUI();
 
-            // Client X/Y extraction for Touch or Mouse
             let clientX = e.clientX || (e.touches && e.touches[0] ? e.touches[0].clientX : window.innerWidth/2);
             let clientY = e.clientY || (e.touches && e.touches[0] ? e.touches[0].clientY : window.innerHeight/2);
 
@@ -422,44 +355,28 @@
             }
         }, 1500);
 
-        function openWalletModal() {
-            if (wallet) document.getElementById('walletAddress').value = wallet;
-            document.getElementById('walletModal').style.display = 'flex';
-        }
-
-        function closeWalletModal() {
-            document.getElementById('walletModal').style.display = 'none';
-        }
-
-        function saveWallet() {
-            const addr = document.getElementById('walletAddress').value.trim();
-            if (addr.length < 10) {
-                alert('لطفاً یک آدرس معتبر وارد کنید.');
-                return;
-            }
-            wallet = addr;
-            setCookie('wlf_wallet', wallet);
-            try { localStorage.setItem('wlf_wallet', wallet); } catch(e){}
-            alert('کیف پول شما ثبت شد!');
-            closeWalletModal();
-        }
-
+        // Claim Function with TON Connect Wallet Verification
         function openClaimModal() {
-            if (!wallet) {
-                alert('لطفاً ابتدا کیف پول TON خود را متصل کنید.');
-                openWalletModal();
+            const currentWallet = tonConnectUI.wallet;
+            
+            if (!currentWallet) {
+                alert('لطفاً ابتدا از طریق دکمه بالای صفحه، کیف پول Tonkeeper خود را متصل کنید.');
+                tonConnectUI.openModal();
                 return;
             }
+
             if (score < 10000) {
                 alert('حداقل میزان موجودی برای برداشت ۱۰,۰۰۰ توکن $WLF است.');
                 return;
             }
-            alert(`درخواست برداشت ${score} توکن $WLF ثبت شد:\n${wallet}`);
+
+            const userAddress = currentWallet.account.address;
+            alert(`درخواست برداشت ${score} توکن $WLF با موفقیت ثبت شد!\nآدرس متصل‌شده:\n${userAddress}`);
         }
 
         function copyShareLink() {
             navigator.clipboard.writeText(window.location.href);
-            alert('لینک کپی شد!');
+            alert('لینک بازی کپی شد!');
         }
     </script>
 </body>
