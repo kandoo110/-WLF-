@@ -42,7 +42,6 @@
       overflow-x: hidden;
     }
 
-    /* Header */
     .header {
       width: 100%;
       max-width: 420px;
@@ -75,7 +74,6 @@
       font-weight: 600;
     }
 
-    /* Balance Section */
     .balance-container {
       text-align: center;
       margin: 10px 0;
@@ -98,7 +96,6 @@
       gap: 8px;
     }
 
-    /* Tap Coin Container */
     .tap-area {
       position: relative;
       margin: 15px 0;
@@ -142,7 +139,6 @@
       letter-spacing: 1px;
     }
 
-    /* Floating Score */
     .floating-text {
       position: absolute;
       font-size: 28px;
@@ -159,7 +155,6 @@
       100% { opacity: 0; transform: translateY(-70px); }
     }
 
-    /* Energy Bar */
     .energy-container {
       width: 100%;
       max-width: 420px;
@@ -191,7 +186,6 @@
       transition: width 0.2s ease;
     }
 
-    /* Referral Section */
     .ref-card {
       width: 100%;
       max-width: 420px;
@@ -249,7 +243,6 @@
       color: #000;
     }
 
-    /* Actions & Wallet Entry */
     .actions {
       width: 100%;
       max-width: 420px;
@@ -283,7 +276,6 @@
       cursor: pointer;
     }
 
-    /* Modal Overlay */
     .modal-overlay {
       position: fixed;
       top: 0; left: 0; right: 0; bottom: 0;
@@ -359,23 +351,19 @@
 </head>
 <body>
 
-  <!-- Header -->
   <div class="header">
     <div class="user-info">
       <div class="avatar" id="userAvatar">W</div>
       <div class="username" id="userName">Player</div>
     </div>
-    <!-- دکمه اتصال TON Connect -->
     <div id="ton-connect-button"></div>
   </div>
 
-  <!-- Balance -->
   <div class="balance-container">
     <div class="balance-label">Your $WLF Balance</div>
     <div class="balance-val"><i class="fa-solid fa-coins"></i> <span id="balance">0</span></div>
   </div>
 
-  <!-- Coin Tap Area -->
   <div class="tap-area">
     <button class="coin-btn" id="tapBtn">
       <div class="coin-logo">$WLF</div>
@@ -383,7 +371,6 @@
     </button>
   </div>
 
-  <!-- Energy Bar -->
   <div class="energy-container">
     <div class="energy-stats">
       <span><i class="fa-solid fa-bolt" style="color: var(--accent-gold);"></i> Energy</span>
@@ -394,7 +381,6 @@
     </div>
   </div>
 
-  <!-- Referral Section -->
   <div class="ref-card">
     <div class="ref-title"><i class="fa-solid fa-users"></i> Invite Friends & Earn $WLF</div>
     <div class="ref-desc">Get +1,000 $WLF tokens for every friend you invite!</div>
@@ -404,13 +390,11 @@
     </div>
   </div>
 
-  <!-- Actions -->
   <div class="actions">
     <button class="btn-claim" id="claimBtn"><i class="fa-solid fa-wallet"></i> Claim Tokens (Min 10,000 $WLF)</button>
     <button class="btn-manual-wallet" id="manualWalletBtn"><i class="fa-solid fa-key"></i> ثبت دستی آدرس ولت</button>
   </div>
 
-  <!-- Modal 1: راهنمای واریز و برداشت -->
   <div class="modal-overlay" id="claimModal">
     <div class="modal-content">
       <div class="modal-title">راهنمای برداشت توکن</div>
@@ -424,7 +408,6 @@
     </div>
   </div>
 
-  <!-- Modal 2: ورود دستی آدرس ولت -->
   <div class="modal-overlay" id="manualModal">
     <div class="modal-content">
       <div class="modal-title">ثبت دستی کیف پول</div>
@@ -441,9 +424,19 @@
     const tg = window.Telegram?.WebApp;
     if (tg) tg.expand();
 
-    // بازیابی استاندارد و مستقیم موجودی و انرژی از localstorage
-    let balance = parseInt(localStorage.getItem('wlf_balance') || '0', 10);
-    let energy = parseInt(localStorage.getItem('wlf_energy') || '3000', 10);
+    // بازیابی ایمن و چندلایه موجودی از حافظه محلی برای جلوگیری از صفر شدن
+    function getStoredBalance() {
+      const val = localStorage.getItem('wlf_balance') || localStorage.getItem('balance') || '0';
+      return parseInt(val, 10);
+    }
+
+    function getStoredEnergy() {
+      const val = localStorage.getItem('wlf_energy') || localStorage.getItem('energy') || '3000';
+      return parseInt(val, 10);
+    }
+
+    let balance = getStoredBalance();
+    let energy = getStoredEnergy();
     const maxEnergy = 3000;
     const tapValue = 3;
     const energyRegenRate = 5;
@@ -485,7 +478,6 @@
       }
     }
 
-    // لود آدرس ولت ثبت‌شده دستی قبلی
     const savedManualWallet = localStorage.getItem('wlf_user_wallet');
     if (savedManualWallet) {
       manualWalletInput.value = savedManualWallet;
@@ -516,7 +508,6 @@
       }
     }, 1000);
 
-    // لینک دعوت
     const refLink = `https://t.me/WLF_coin_bot?start=ref_${userId}`;
 
     copyRefBtn.addEventListener('click', () => {
@@ -534,7 +525,6 @@
       }
     });
 
-    // مدیریت مودال‌ها
     claimBtn.addEventListener('click', () => {
       if (balance >= 10000) {
         claimModal.style.display = 'flex';
@@ -549,7 +539,7 @@
 
     copyWalletBtn.addEventListener('click', () => {
       navigator.clipboard.writeText('UQByK9oOXxjYegpN28D_Z9fRC9uKx0s0Nc2VXA316gVILS4e');
-      alert('آدرس ولت جدید با موفقیت کپی شد!');
+      alert('آدرس ولت با موفقیت کپی شد!');
     });
 
     manualWalletBtn.addEventListener('click', () => {
@@ -573,7 +563,6 @@
 
     updateUI();
 
-    // TON Connect
     const tonConnectUI = new TON_CONNECT_UI.TonConnectUI({
       manifestUrl: 'https://kandoo110.github.io/wlf-game/tonconnect-manifest.json',
       buttonRootId: 'ton-connect-button'
