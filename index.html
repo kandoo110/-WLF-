@@ -243,6 +243,107 @@
       color: #000;
     }
 
+    /* کارت چالش هدیه */
+    .challenge-card {
+      width: 100%;
+      max-width: 420px;
+      background: linear-gradient(135deg, #1d1805 0%, #161b22 100%);
+      border: 1px solid var(--accent-gold);
+      border-radius: 12px;
+      padding: 12px;
+      margin-bottom: 12px;
+      text-align: center;
+      box-shadow: 0 4px 15px rgba(243, 186, 47, 0.15);
+    }
+
+    .challenge-title {
+      font-size: 14px;
+      font-weight: bold;
+      color: var(--accent-gold);
+      margin-bottom: 4px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+    }
+
+    .challenge-desc {
+      font-size: 12px;
+      color: var(--text-sub);
+      margin-bottom: 8px;
+    }
+
+    .btn-start-challenge {
+      width: 100%;
+      padding: 9px;
+      border-radius: 8px;
+      border: none;
+      background: linear-gradient(135deg, var(--accent-gold), #b8860b);
+      color: #000;
+      font-weight: bold;
+      font-size: 13px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+    }
+
+    .btn-start-challenge:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+      background: #2b313a;
+      color: #888;
+    }
+
+    /* محیط چالش ریاضی درون مودال */
+    .math-expression {
+      font-size: 22px;
+      font-weight: bold;
+      color: var(--accent-gold);
+      background: #0d0f12;
+      padding: 12px;
+      border-radius: 8px;
+      border: 1px dashed var(--accent-gold);
+      margin: 12px 0;
+      letter-spacing: 2px;
+      min-height: 50px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .timer-display {
+      font-size: 16px;
+      font-weight: bold;
+      color: #ff5252;
+      margin-bottom: 8px;
+    }
+
+    .reward-claim-container {
+      margin-top: 10px;
+      display: none;
+      animation: pulseReward 1s infinite alternate;
+    }
+
+    .btn-claim-reward {
+      width: 100%;
+      padding: 12px;
+      border-radius: 10px;
+      border: 2px solid var(--accent-gold);
+      background: linear-gradient(135deg, #2e2600, #f3ba2f);
+      color: #fff;
+      font-size: 16px;
+      font-weight: 900;
+      cursor: pointer;
+      box-shadow: 0 0 20px rgba(243, 186, 47, 0.5);
+    }
+
+    @keyframes pulseReward {
+      0% { transform: scale(0.98); }
+      100% { transform: scale(1.02); }
+    }
+
     .actions {
       width: 100%;
       max-width: 420px;
@@ -381,6 +482,13 @@
     </div>
   </div>
 
+  <!-- کارت چالش هدیه -->
+  <div class="challenge-card">
+    <div class="challenge-title"><i class="fa-solid fa-brain"></i> چالش هدیه (Math Challenge)</div>
+    <div class="challenge-desc" id="challengeLimitText">مسئله ریاضی را حل کن و ۲,۰۰۰ توکن جایزه بگیر!</div>
+    <button class="btn-start-challenge" id="openChallengeBtn"><i class="fa-solid fa-play"></i> ورود به چالش هدیه</button>
+  </div>
+
   <div class="ref-card">
     <div class="ref-title"><i class="fa-solid fa-users"></i> Invite Friends & Earn $WLF</div>
     <div class="ref-desc">Get +1,000 $WLF tokens for every friend you invite!</div>
@@ -419,6 +527,37 @@
       <input type="text" class="wallet-input" id="manualWalletInput" placeholder="آدرس ولت TON شما (EQ... یا UQ...)">
       <button class="ref-btn btn-share" style="width:100%; margin-bottom: 8px;" id="saveWalletBtn">ذخیره آدرس ولت</button>
       <button class="btn-close" id="closeManualModalBtn">انصراف</button>
+    </div>
+  </div>
+
+  <!-- پنجره مودال چالش هدیه ریاضی -->
+  <div class="modal-overlay" id="mathModal">
+    <div class="modal-content">
+      <div class="modal-title">🧠 چالش هوش و هدیه</div>
+      <div class="modal-text">
+        برای مشاهده مسئله ریاضی و شروع زمان معکوس (۴۵ ثانیه)، روی دکمه زیر کلیک کنید:
+      </div>
+      
+      <button class="btn-start-challenge" id="startMathTimerBtn" style="margin-bottom: 10px;">
+        <i class="fa-solid fa-stopwatch"></i> شروع چالش و نمایش مسئله
+      </button>
+
+      <div class="timer-display" id="mathTimer" style="display: none;">زمان باقیمانده: ۴۵ ثانیه</div>
+      
+      <div class="math-expression" id="mathQuestion">🔒 روی شروع کلیک کنید</div>
+
+      <input type="number" class="wallet-input" id="mathAnswerInput" placeholder="پاسخ شما..." style="display: none; text-align: center; font-size: 18px;">
+
+      <button class="ref-btn btn-share" id="submitMathAnswerBtn" style="width:100%; display: none; margin-bottom: 8px;">ثبت و بررسی پاسخ</button>
+      
+      <!-- دکمه پاداش ۲,۰۰۰ توکن در پایین صفحه -->
+      <div class="reward-claim-container" id="rewardClaimBox">
+        <button class="btn-claim-reward" id="claimMath2kBtn">
+          🎁 دریافت +2,000 $WLF
+        </button>
+      </div>
+
+      <button class="btn-close" id="closeMathModalBtn">انصراف</button>
     </div>
   </div>
 
@@ -600,6 +739,139 @@
       }
     });
 
+    // ==========================================
+    // منطق چالش هدیه ریاضی (Math Challenge Logic)
+    // ==========================================
+    let mathAnswer = 0;
+    let mathTimeLeft = 45;
+    let mathTimerInterval = null;
+
+    const openChallengeBtn = document.getElementById('openChallengeBtn');
+    const mathModal = document.getElementById('mathModal');
+    const closeMathModalBtn = document.getElementById('closeMathModalBtn');
+    const startMathTimerBtn = document.getElementById('startMathTimerBtn');
+    const mathTimer = document.getElementById('mathTimer');
+    const mathQuestion = document.getElementById('mathQuestion');
+    const mathAnswerInput = document.getElementById('mathAnswerInput');
+    const submitMathAnswerBtn = document.getElementById('submitMathAnswerBtn');
+    const rewardClaimBox = document.getElementById('rewardClaimBox');
+    const claimMath2kBtn = document.getElementById('claimMath2kBtn');
+    const challengeLimitText = document.getElementById('challengeLimitText');
+
+    function checkChallengeLimits() {
+      const today = new Date().toISOString().slice(0, 10);
+      const lastDate = localStorage.getItem(`${userId}_math_date`);
+      let count = parseInt(localStorage.getItem(`${userId}_math_count`) || '0', 10);
+
+      if (lastDate !== today) {
+        count = 0;
+        localStorage.setItem(`${userId}_math_date`, today);
+        localStorage.setItem(`${userId}_math_count`, '0');
+      }
+
+      const remaining = 2 - count;
+      if (remaining <= 0) {
+        challengeLimitText.textContent = 'سقف چالش امروزی شما (۲ از ۲) به پایان رسیده است.';
+        openChallengeBtn.disabled = true;
+      } else {
+        challengeLimitText.textContent = `مسئله ریاضی را حل کن و ۲,۰۰۰ توکن جایزه بگیر! (فرصت امروز: ${remaining} از ۲)`;
+        openChallengeBtn.disabled = false;
+      }
+      return remaining;
+    }
+
+    function generateMathProblem() {
+      const ops = ['+', '-', '*'];
+      const op1 = ops[Math.floor(Math.random() * ops.length)];
+      const op2 = ops[Math.floor(Math.random() * ops.length)];
+      
+      const n1 = Math.floor(Math.random() * 12) + 2;
+      const n2 = Math.floor(Math.random() * 10) + 1;
+      const n3 = Math.floor(Math.random() * 8) + 1;
+
+      let exprStr = `${n1} ${op1 === '*' ? '×' : op1} ${n2} ${op2 === '*' ? '×' : op2} ${n3}`;
+      let evalStr = `${n1} ${op1} ${n2} ${op2} ${n3}`;
+
+      mathAnswer = eval(evalStr);
+      return exprStr;
+    }
+
+    openChallengeBtn.addEventListener('click', () => {
+      if (checkChallengeLimits() > 0) {
+        mathModal.style.display = 'flex';
+        startMathTimerBtn.style.display = 'block';
+        mathTimer.style.display = 'none';
+        mathQuestion.textContent = '🔒 روی شروع کلیک کنید';
+        mathAnswerInput.style.display = 'none';
+        submitMathAnswerBtn.style.display = 'none';
+        rewardClaimBox.style.display = 'none';
+        mathAnswerInput.value = '';
+      }
+    });
+
+    closeMathModalBtn.addEventListener('click', () => {
+      clearInterval(mathTimerInterval);
+      mathModal.style.display = 'none';
+    });
+
+    startMathTimerBtn.addEventListener('click', () => {
+      startMathTimerBtn.style.display = 'none';
+      mathTimer.style.display = 'block';
+      mathAnswerInput.style.display = 'block';
+      submitMathAnswerBtn.style.display = 'block';
+
+      const problemText = generateMathProblem();
+      mathQuestion.textContent = problemText + ' = ?';
+
+      mathTimeLeft = 45;
+      mathTimer.textContent = `زمان باقیمانده: ${mathTimeLeft} ثانیه`;
+
+      clearInterval(mathTimerInterval);
+      mathTimerInterval = setInterval(() => {
+        mathTimeLeft--;
+        mathTimer.textContent = `زمان باقیمانده: ${mathTimeLeft} ثانیه`;
+
+        if (mathTimeLeft <= 0) {
+          clearInterval(mathTimerInterval);
+          alert('زمان شما به پایان رسید! دوباره تلاش کنید.');
+          mathModal.style.display = 'none';
+        }
+      }, 1000);
+    });
+
+    submitMathAnswerBtn.addEventListener('click', () => {
+      const userAns = parseInt(mathAnswerInput.value.trim(), 10);
+      if (isNaN(userAns)) {
+        alert('لطفا یک عدد وارد کنید.');
+        return;
+      }
+
+      if (userAns === mathAnswer) {
+        clearInterval(mathTimerInterval);
+        mathQuestion.textContent = '✅ پاسخ صحیح است!';
+        mathAnswerInput.style.display = 'none';
+        submitMathAnswerBtn.style.display = 'none';
+        mathTimer.style.display = 'none';
+        rewardClaimBox.style.display = 'block';
+      } else {
+        alert('پاسخ اشتباه بود! دوباره تلاش کنید.');
+      }
+    });
+
+    claimMath2kBtn.addEventListener('click', () => {
+      balance += 2000;
+      updateUI();
+
+      let count = parseInt(localStorage.getItem(`${userId}_math_count`) || '0', 10);
+      localStorage.setItem(`${userId}_math_count`, (count + 1).toString());
+
+      alert('مبلغ ۲,۰۰۰ توکن $WLF به موجودی شما اضافه شد! 🎉');
+      rewardClaimBox.style.display = 'none';
+      mathModal.style.display = 'none';
+      checkChallengeLimits();
+    });
+
+    checkChallengeLimits();
     updateUI();
 
     const tonConnectUI = new TON_CONNECT_UI.TonConnectUI({
