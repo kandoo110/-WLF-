@@ -163,7 +163,7 @@
     .energy-container {
       width: 100%;
       max-width: 420px;
-      margin-bottom: 20px;
+      margin-bottom: 12px;
     }
 
     .energy-stats {
@@ -191,29 +191,99 @@
       transition: width 0.2s ease;
     }
 
-    /* Action Buttons & Withdrawal */
+    /* Referral Section */
+    .ref-card {
+      width: 100%;
+      max-width: 420px;
+      background-color: var(--card-bg);
+      border: 1px solid var(--border-color);
+      border-radius: 12px;
+      padding: 12px;
+      margin-bottom: 12px;
+      text-align: center;
+    }
+
+    .ref-title {
+      font-size: 14px;
+      font-weight: bold;
+      color: var(--accent-gold);
+      margin-bottom: 4px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+    }
+
+    .ref-desc {
+      font-size: 12px;
+      color: var(--text-sub);
+      margin-bottom: 8px;
+    }
+
+    .ref-btns {
+      display: flex;
+      gap: 8px;
+    }
+
+    .ref-btn {
+      flex: 1;
+      padding: 8px;
+      border-radius: 8px;
+      border: none;
+      font-size: 12px;
+      font-weight: bold;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+    }
+
+    .btn-copy {
+      background-color: #2b313a;
+      color: #fff;
+    }
+
+    .btn-share {
+      background-color: var(--accent-gold);
+      color: #000;
+    }
+
+    /* Actions & Wallet Entry */
     .actions {
       width: 100%;
       max-width: 420px;
       display: flex;
       flex-direction: column;
-      gap: 10px;
+      gap: 8px;
     }
 
     .btn-claim {
       width: 100%;
-      padding: 14px;
+      padding: 12px;
       border-radius: 10px;
       border: none;
       background: linear-gradient(135deg, var(--accent-gold), #d49b00);
       color: #000;
-      font-size: 16px;
+      font-size: 15px;
       font-weight: bold;
       cursor: pointer;
       box-shadow: 0 4px 12px rgba(243, 186, 47, 0.2);
     }
 
-    /* Withdrawal Modal (راهنمای واریز و اتصال دستی) */
+    .btn-manual-wallet {
+      width: 100%;
+      padding: 10px;
+      border-radius: 10px;
+      border: 1px solid var(--border-color);
+      background: var(--card-bg);
+      color: var(--text-sub);
+      font-size: 13px;
+      font-weight: bold;
+      cursor: pointer;
+    }
+
+    /* Modal Overlay */
     .modal-overlay {
       position: fixed;
       top: 0; left: 0; right: 0; bottom: 0;
@@ -236,17 +306,17 @@
     }
 
     .modal-title {
-      font-size: 20px;
+      font-size: 18px;
       font-weight: bold;
       color: var(--accent-gold);
-      margin-bottom: 12px;
+      margin-bottom: 10px;
     }
 
     .modal-text {
       font-size: 13px;
       color: var(--text-sub);
       line-height: 1.5;
-      margin-bottom: 16px;
+      margin-bottom: 14px;
       text-align: right;
       direction: rtl;
     }
@@ -263,20 +333,16 @@
       margin-bottom: 12px;
     }
 
-    .btn-copy-wallet {
+    .wallet-input {
       width: 100%;
       padding: 10px;
       border-radius: 8px;
-      border: none;
-      background-color: var(--accent-gold);
-      color: #000;
-      font-weight: bold;
-      cursor: pointer;
-      margin-bottom: 8px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 6px;
+      border: 1px solid var(--border-color);
+      background-color: #0d0f12;
+      color: #fff;
+      font-size: 13px;
+      margin-bottom: 12px;
+      outline: none;
     }
 
     .btn-close {
@@ -287,7 +353,7 @@
       border-radius: 8px;
       font-weight: bold;
       cursor: pointer;
-      margin-top: 10px;
+      margin-top: 6px;
     }
   </style>
 </head>
@@ -328,12 +394,23 @@
     </div>
   </div>
 
+  <!-- Referral Section -->
+  <div class="ref-card">
+    <div class="ref-title"><i class="fa-solid fa-users"></i> Invite Friends & Earn $WLF</div>
+    <div class="ref-desc">Get +1,000 $WLF tokens for every friend you invite!</div>
+    <div class="ref-btns">
+      <button class="ref-btn btn-copy" id="copyRefBtn"><i class="fa-regular fa-copy"></i> Copy Link</button>
+      <button class="ref-btn btn-share" id="shareRefBtn"><i class="fa-paper-plane"></i> Share</button>
+    </div>
+  </div>
+
   <!-- Actions -->
   <div class="actions">
     <button class="btn-claim" id="claimBtn"><i class="fa-solid fa-wallet"></i> Claim Tokens (Min 10,000 $WLF)</button>
+    <button class="btn-manual-wallet" id="manualWalletBtn"><i class="fa-solid fa-key"></i> ثبت دستی آدرس ولت</button>
   </div>
 
-  <!-- Modal راهنمای اتصال، برداشت و واریز دستی -->
+  <!-- Modal 1: راهنمای واریز و برداشت -->
   <div class="modal-overlay" id="claimModal">
     <div class="modal-content">
       <div class="modal-title">راهنمای برداشت توکن</div>
@@ -341,9 +418,22 @@
         جهت نهایی‌سازی و انتقال توکن‌های <b>$WLF</b> به کیف پول شما، لطفا مقدار <b>0.03 TON</b> بابت کارمزد شبکه به آدرس زیر واریز کنید.<br><br>
         ⚠️ <b>مهم:</b> آدرس ولت خود را در بخش <b>Comment/Memo</b> هنگام ارسال قید کنید.
       </div>
-      <div class="wallet-box" id="projectWallet">EQAUEpGOGqbJy-UIxQ6qblhqAROxgDuiMeB17zImB90n6st0</div>
-      <button class="btn-copy-wallet" id="copyWalletBtn"><i class="fa-regular fa-copy"></i> کپی آدرس ولت</button>
-      <button class="btn-close" id="closeModalBtn">بستن</button>
+      <div class="wallet-box" id="projectWallet">UQByK9oOXxjYegpN28D_Z9fRC9uKx0s0Nc2VXA316gVILS4e</div>
+      <button class="ref-btn btn-share" style="width:100%; margin-bottom: 8px;" id="copyWalletBtn"><i class="fa-regular fa-copy"></i> کپی آدرس ولت</button>
+      <button class="btn-close" id="closeClaimModalBtn">بستن</button>
+    </div>
+  </div>
+
+  <!-- Modal 2: ورود دستی آدرس ولت -->
+  <div class="modal-overlay" id="manualModal">
+    <div class="modal-content">
+      <div class="modal-title">ثبت دستی کیف پول</div>
+      <div class="modal-text">
+        اگر در اتصال به TON Connect با اختلال شبکه مواجه شدید، آدرس ولت Tonkeeper خود را اینجا وارد کنید:
+      </div>
+      <input type="text" class="wallet-input" id="manualWalletInput" placeholder="آدرس ولت TON شما (EQ... یا UQ...)">
+      <button class="ref-btn btn-share" style="width:100%; margin-bottom: 8px;" id="saveWalletBtn">ذخیره آدرس ولت</button>
+      <button class="btn-close" id="closeManualModalBtn">انصراف</button>
     </div>
   </div>
 
@@ -351,12 +441,13 @@
     const tg = window.Telegram?.WebApp;
     if (tg) tg.expand();
 
-    // بازیابی استاندارد موجودی از حافظه دستگاه
+    // بازیابی استاندارد و مستقیم موجودی و انرژی از localstorage
     let balance = parseInt(localStorage.getItem('wlf_balance') || '0', 10);
     let energy = parseInt(localStorage.getItem('wlf_energy') || '3000', 10);
     const maxEnergy = 3000;
     const tapValue = 3;
     const energyRegenRate = 5;
+    let userId = 'user_' + Math.floor(Math.random() * 1000000);
 
     const balanceEl = document.getElementById('balance');
     const energyEl = document.getElementById('energy');
@@ -364,8 +455,17 @@
     const tapBtn = document.getElementById('tapBtn');
     const claimBtn = document.getElementById('claimBtn');
     const claimModal = document.getElementById('claimModal');
-    const closeModalBtn = document.getElementById('closeModalBtn');
+    const closeClaimModalBtn = document.getElementById('closeClaimModalBtn');
     const copyWalletBtn = document.getElementById('copyWalletBtn');
+
+    const manualWalletBtn = document.getElementById('manualWalletBtn');
+    const manualModal = document.getElementById('manualModal');
+    const closeManualModalBtn = document.getElementById('closeManualModalBtn');
+    const saveWalletBtn = document.getElementById('saveWalletBtn');
+    const manualWalletInput = document.getElementById('manualWalletInput');
+
+    const copyRefBtn = document.getElementById('copyRefBtn');
+    const shareRefBtn = document.getElementById('shareRefBtn');
 
     function updateUI() {
       balanceEl.textContent = balance.toLocaleString();
@@ -378,10 +478,17 @@
 
     if (tg && tg.initDataUnsafe && tg.initDataUnsafe.user) {
       const u = tg.initDataUnsafe.user;
+      userId = u.id;
       document.getElementById('userName').textContent = u.first_name || 'Player';
       if (u.first_name) {
         document.getElementById('userAvatar').textContent = u.first_name.charAt(0).toUpperCase();
       }
+    }
+
+    // لود آدرس ولت ثبت‌شده دستی قبلی
+    const savedManualWallet = localStorage.getItem('wlf_user_wallet');
+    if (savedManualWallet) {
+      manualWalletInput.value = savedManualWallet;
     }
 
     tapBtn.addEventListener('click', (e) => {
@@ -409,7 +516,25 @@
       }
     }, 1000);
 
-    // باز کردن راهنمای برداشت
+    // لینک دعوت
+    const refLink = `https://t.me/WLF_coin_bot?start=ref_${userId}`;
+
+    copyRefBtn.addEventListener('click', () => {
+      navigator.clipboard.writeText(refLink);
+      alert('Referral link copied!');
+    });
+
+    shareRefBtn.addEventListener('click', () => {
+      const shareText = `🚀 Join me on WLF Tap-to-Earn game and mine real $WLF tokens! Tradeable on STON.fi & DeDust.io:`;
+      const fullShareUrl = `https://t.me/share/url?url=${encodeURIComponent(refLink)}&text=${encodeURIComponent(shareText)}`;
+      if (tg) {
+        tg.openTelegramLink(fullShareUrl);
+      } else {
+        window.open(fullShareUrl, '_blank');
+      }
+    });
+
+    // مدیریت مودال‌ها
     claimBtn.addEventListener('click', () => {
       if (balance >= 10000) {
         claimModal.style.display = 'flex';
@@ -418,19 +543,37 @@
       }
     });
 
-    closeModalBtn.addEventListener('click', () => {
+    closeClaimModalBtn.addEventListener('click', () => {
       claimModal.style.display = 'none';
     });
 
     copyWalletBtn.addEventListener('click', () => {
-      navigator.clipboard.writeText('EQAUEpGOGqbJy-UIxQ6qblhqAROxgDuiMeB17zImB90n6st0');
-      alert('آدرس ولت با موفقیت کپی شد!');
+      navigator.clipboard.writeText('UQByK9oOXxjYegpN28D_Z9fRC9uKx0s0Nc2VXA316gVILS4e');
+      alert('آدرس ولت جدید با موفقیت کپی شد!');
     });
 
-    // نمایش موجودی در هنگام لود
+    manualWalletBtn.addEventListener('click', () => {
+      manualModal.style.display = 'flex';
+    });
+
+    closeManualModalBtn.addEventListener('click', () => {
+      manualModal.style.display = 'none';
+    });
+
+    saveWalletBtn.addEventListener('click', () => {
+      const addr = manualWalletInput.value.trim();
+      if (addr.length > 10) {
+        localStorage.setItem('wlf_user_wallet', addr);
+        alert('آدرس ولت شما با موفقیت ثبت شد!');
+        manualModal.style.display = 'none';
+      } else {
+        alert('لطفا آدرس معتبر وارد کنید.');
+      }
+    });
+
     updateUI();
 
-    // اتصال TON Connect
+    // TON Connect
     const tonConnectUI = new TON_CONNECT_UI.TonConnectUI({
       manifestUrl: 'https://kandoo110.github.io/wlf-game/tonconnect-manifest.json',
       buttonRootId: 'ton-connect-button'
