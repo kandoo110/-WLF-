@@ -1,527 +1,541 @@
 <!DOCTYPE html>
-<html lang="fa" dir="rtl">
+<html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, maximum-scale=1.0">
-    <title>WLF Coin - Tap to Earn</title>
-    <!-- Telegram Mini App SDK -->
-    <script src="https://telegram.org/js/telegram-web-app.js"></script>
-    <!-- TON Connect UI SDK -->
-    <script src="https://unpkg.com/@tonconnect/ui@latest/dist/tonconnect-ui.min.js"></script>
-    <style>
-        :root {
-            --bg-color: #0d0f12;
-            --card-bg: #1a1d24;
-            --accent-color: #f3ba2f;
-            --accent-hover: #ffca3a;
-            --text-main: #ffffff;
-            --text-sub: #a0a5b5;
-        }
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+  <title>WLF Tap-to-Earn Game</title>
 
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-            user-select: none;
-            -webkit-user-select: none;
-            touch-action: manipulation;
-            font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-        }
+  <!-- Google Analytics -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-YOUR_MEASUREMENT_ID"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
 
-        body {
-            background-color: var(--bg-color);
-            color: var(--text-main);
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: flex-start;
-            min-height: 100vh;
-            overflow-y: auto;
-            padding: 20px 15px;
-        }
+    gtag('config', 'G-YOUR_MEASUREMENT_ID');
+  </script>
 
-        .header {
-            width: 100%;
-            max-width: 400px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            background: var(--card-bg);
-            padding: 12px 16px;
-            border-radius: 16px;
-            border: 1px solid rgba(255, 255, 255, 0.05);
-        }
+  <!-- Telegram Web App SDK & TON Connect -->
+  <script src="https://telegram.org/js/telegram-web-app.js"></script>
+  <script src="https://unpkg.com/@tonconnect/ui@latest/dist/tonconnect-ui.min.js"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
-        .user-info {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
+  <style>
+    :root {
+      --bg-color: #0d0f12;
+      --card-bg: #161b22;
+      --accent-gold: #f3ba2f;
+      --accent-gold-hover: #ffd056;
+      --text-main: #ffffff;
+      --text-sub: #9e9e9e;
+      --border-color: #2b313a;
+    }
 
-        .avatar {
-            width: 36px;
-            height: 36px;
-            background: var(--accent-color);
-            color: #000;
-            font-weight: bold;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
+    * {
+      box-sizing: border-box;
+      user-select: none;
+      -webkit-user-select: none;
+      margin: 0;
+      padding: 0;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+    }
 
-        .score-container {
-            text-align: center;
-            margin-top: 15px;
-        }
+    body {
+      background-color: var(--bg-color);
+      color: var(--text-main);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: space-between;
+      min-height: 100vh;
+      padding: 16px;
+      overflow-x: hidden;
+    }
 
-        .score-title {
-            font-size: 14px;
-            color: var(--text-sub);
-            margin-bottom: 5px;
-        }
+    /* Header */
+    .header {
+      width: 100%;
+      max-width: 420px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 12px;
+    }
 
-        .score-value {
-            font-size: 42px;
-            font-weight: 800;
-            color: var(--accent-color);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 8px;
-            text-shadow: 0 0 20px rgba(243, 186, 47, 0.3);
-        }
+    .user-info {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
 
-        .coin-container {
-            position: relative;
-            width: 220px;
-            height: 220px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            margin: 15px 0;
-            cursor: pointer;
-        }
+    .avatar {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, var(--accent-gold), #8a6400);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: bold;
+      color: #000;
+    }
 
-        .coin {
-            width: 200px;
-            height: 200px;
-            background: radial-gradient(circle at 30% 30%, #ffe066, #f3ba2f 60%, #b8860b);
-            border-radius: 50%;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            box-shadow: 0 0 30px rgba(243, 186, 47, 0.4), inset 0 0 15px rgba(255, 255, 255, 0.6);
-            border: 6px solid #ffd700;
-            transition: transform 0.05s ease;
-        }
+    .username {
+      font-size: 15px;
+      font-weight: 600;
+    }
 
-        .coin:active {
-            transform: scale(0.95);
-        }
+    /* Balance Section */
+    .balance-container {
+      text-align: center;
+      margin: 10px 0;
+    }
 
-        .coin-symbol {
-            font-size: 30px;
-            font-weight: 900;
-            color: #1a1d24;
-        }
+    .balance-label {
+      font-size: 13px;
+      color: var(--text-sub);
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
 
-        .coin-subtext {
-            font-size: 12px;
-            color: #4a3b00;
-            font-weight: bold;
-        }
+    .balance-val {
+      font-size: 38px;
+      font-weight: 800;
+      color: var(--accent-gold);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+    }
 
-        .floating-text {
-            position: absolute;
-            font-size: 28px;
-            font-weight: 800;
-            color: var(--accent-color);
-            pointer-events: none;
-            animation: floatUp 0.8s ease-out forwards;
-            text-shadow: 0 2px 5px rgba(0,0,0,0.5);
-            z-index: 100;
-        }
+    /* Tap Coin Container */
+    .tap-area {
+      position: relative;
+      margin: 15px 0;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
 
-        @keyframes floatUp {
-            0% { opacity: 1; transform: translateY(0) scale(1); }
-            100% { opacity: 0; transform: translateY(-80px) scale(1.2); }
-        }
+    .coin-btn {
+      width: 220px;
+      height: 220px;
+      border-radius: 50%;
+      background: radial-gradient(circle, #f3ba2f 0%, #a87d0e 70%, #4a3500 100%);
+      border: 8px solid #f3ba2f;
+      box-shadow: 0 0 30px rgba(243, 186, 47, 0.3), inset 0 0 15px rgba(255, 255, 255, 0.4);
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      cursor: pointer;
+      transition: transform 0.05s ease;
+      position: relative;
+      outline: none;
+    }
 
-        .energy-container {
-            width: 100%;
-            max-width: 350px;
-            margin-bottom: 15px;
-        }
+    .coin-btn:active {
+      transform: scale(0.95);
+    }
 
-        .energy-header {
-            display: flex;
-            justify-content: space-between;
-            font-size: 14px;
-            margin-bottom: 6px;
-            color: var(--text-sub);
-        }
+    .coin-logo {
+      font-size: 42px;
+      font-weight: 900;
+      color: #0d0f12;
+      text-shadow: 0 2px 4px rgba(255, 255, 255, 0.3);
+    }
 
-        .energy-bar-outer {
-            width: 100%;
-            height: 12px;
-            background: rgba(255, 255, 255, 0.1);
-            border-radius: 6px;
-            overflow: hidden;
-        }
+    .coin-sub {
+      font-size: 11px;
+      font-weight: bold;
+      color: #0d0f12;
+      letter-spacing: 1px;
+    }
 
-        .energy-bar-inner {
-            height: 100%;
-            width: 100%;
-            background: linear-gradient(90deg, #f3ba2f, #2ed573);
-            border-radius: 6px;
-            transition: width 0.2s ease;
-        }
+    /* Floating Score */
+    .floating-text {
+      position: absolute;
+      font-size: 28px;
+      font-weight: bold;
+      color: var(--accent-gold);
+      pointer-events: none;
+      animation: floatUp 0.8s ease-out forwards;
+      text-shadow: 0 2px 4px rgba(0,0,0,0.8);
+      z-index: 10;
+    }
 
-        .action-grid {
-            display: grid;
-            grid-template-columns: 1fr;
-            gap: 10px;
-            width: 100%;
-            max-width: 350px;
-        }
+    @keyframes floatUp {
+      0% { opacity: 1; transform: translateY(0); }
+      100% { opacity: 0; transform: translateY(-70px); }
+    }
 
-        .btn {
-            background: var(--card-bg);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            color: var(--text-main);
-            padding: 12px;
-            border-radius: 12px;
-            font-weight: 600;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 8px;
-            font-size: 14px;
-        }
+    /* Energy Bar */
+    .energy-container {
+      width: 100%;
+      max-width: 420px;
+      margin-bottom: 12px;
+    }
 
-        .btn-primary {
-            background: var(--accent-color);
-            color: #000;
-            border: none;
-        }
+    .energy-stats {
+      display: flex;
+      justify-content: space-between;
+      font-size: 14px;
+      margin-bottom: 6px;
+      color: var(--text-sub);
+    }
 
-        .btn-secondary {
-            background: rgba(243, 186, 47, 0.15);
-            color: var(--accent-color);
-            border: 1px solid rgba(243, 186, 47, 0.3);
-            font-size: 13px;
-        }
+    .energy-bar-bg {
+      width: 100%;
+      height: 12px;
+      background-color: var(--card-bg);
+      border-radius: 6px;
+      overflow: hidden;
+      border: 1px solid var(--border-color);
+    }
 
-        #ton-connect-button {
-            display: flex;
-            justify-content: center;
-        }
+    .energy-bar-fill {
+      height: 100%;
+      width: 100%;
+      background: linear-gradient(90deg, #f3ba2f, #ff8c00);
+      border-radius: 6px;
+      transition: width 0.2s ease;
+    }
 
-        .guide-box {
-            width: 100%;
-            max-width: 350px;
-            background: var(--card-bg);
-            border: 1px solid rgba(243, 186, 47, 0.3);
-            border-radius: 14px;
-            padding: 14px;
-            margin-top: 15px;
-            text-align: right;
-            direction: rtl;
-        }
+    /* Referral Section */
+    .ref-card {
+      width: 100%;
+      max-width: 420px;
+      background-color: var(--card-bg);
+      border: 1px solid var(--border-color);
+      border-radius: 12px;
+      padding: 14px;
+      margin-bottom: 12px;
+      text-align: center;
+    }
 
-        .guide-title {
-            color: var(--accent-color);
-            font-size: 14px;
-            font-weight: bold;
-            margin-bottom: 8px;
-        }
+    .ref-title {
+      font-size: 15px;
+      font-weight: bold;
+      color: var(--accent-gold);
+      margin-bottom: 6px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+    }
 
-        .guide-text {
-            color: var(--text-sub);
-            font-size: 12px;
-            line-height: 1.7;
-        }
+    .ref-desc {
+      font-size: 12px;
+      color: var(--text-sub);
+      margin-bottom: 10px;
+    }
 
-        .modal {
-            display: none;
-            position: fixed;
-            top: 0; left: 0; right: 0; bottom: 0;
-            background: rgba(0,0,0,0.85);
-            align-items: center;
-            justify-content: center;
-            padding: 20px;
-            z-index: 1000;
-        }
+    .ref-btns {
+      display: flex;
+      gap: 8px;
+    }
 
-        .modal-content {
-            background: var(--card-bg);
-            padding: 20px;
-            border-radius: 20px;
-            width: 100%;
-            max-width: 360px;
-            text-align: center;
-            border: 1px solid rgba(255,255,255,0.1);
-            direction: rtl;
-        }
+    .ref-btn {
+      flex: 1;
+      padding: 10px;
+      border-radius: 8px;
+      border: none;
+      font-size: 13px;
+      font-weight: bold;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      transition: background 0.2s;
+    }
 
-        .input-box {
-            width: 100%;
-            padding: 10px;
-            margin: 10px 0;
-            border-radius: 8px;
-            border: 1px solid rgba(255,255,255,0.2);
-            background: #0d0f12;
-            color: #fff;
-            text-align: center;
-            direction: ltr;
-            font-size: 12px;
-        }
-    </style>
+    .btn-copy {
+      background-color: #2b313a;
+      color: #fff;
+    }
+
+    .btn-share {
+      background-color: var(--accent-gold);
+      color: #000;
+    }
+
+    /* Action Buttons & Withdrawal */
+    .actions {
+      width: 100%;
+      max-width: 420px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .btn-claim {
+      width: 100%;
+      padding: 14px;
+      border-radius: 10px;
+      border: none;
+      background: linear-gradient(135deg, var(--accent-gold), #d49b00);
+      color: #000;
+      font-size: 16px;
+      font-weight: bold;
+      cursor: pointer;
+      box-shadow: 0 4px 12px rgba(243, 186, 47, 0.2);
+    }
+
+    .btn-claim:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+
+    /* Withdrawal Modal */
+    .modal-overlay {
+      position: fixed;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: rgba(0, 0, 0, 0.85);
+      display: none;
+      justify-content: center;
+      align-items: center;
+      padding: 16px;
+      z-index: 100;
+    }
+
+    .modal-content {
+      background: var(--card-bg);
+      border: 1px solid var(--border-color);
+      border-radius: 16px;
+      width: 100%;
+      max-width: 400px;
+      padding: 20px;
+      text-align: center;
+    }
+
+    .modal-title {
+      font-size: 20px;
+      font-weight: bold;
+      color: var(--accent-gold);
+      margin-bottom: 12px;
+    }
+
+    .modal-text {
+      font-size: 13px;
+      color: var(--text-sub);
+      line-height: 1.5;
+      margin-bottom: 16px;
+      text-align: right;
+      direction: rtl;
+    }
+
+    .wallet-box {
+      background: #0d0f12;
+      border: 1px dashed var(--accent-gold);
+      padding: 10px;
+      border-radius: 8px;
+      font-family: monospace;
+      font-size: 12px;
+      color: #fff;
+      word-break: break-all;
+      margin-bottom: 12px;
+      position: relative;
+    }
+
+    .btn-close {
+      background: #2b313a;
+      color: #fff;
+      border: none;
+      padding: 10px 20px;
+      border-radius: 8px;
+      font-weight: bold;
+      cursor: pointer;
+      margin-top: 10px;
+    }
+  </style>
 </head>
 <body>
 
-    <div class="header">
-        <div class="user-info">
-            <div class="avatar" id="userAvatar">U</div>
-            <div>
-                <div style="font-weight: bold; font-size: 14px;" id="userName">کاربر</div>
-                <div style="font-size: 11px; color: var(--text-sub);">شبکه TON</div>
-            </div>
-        </div>
-        <div id="ton-connect-button"></div>
+  <!-- Header -->
+  <div class="header">
+    <div class="user-info">
+      <div class="avatar" id="userAvatar">W</div>
+      <div class="username" id="userName">Player</div>
     </div>
+    <div id="ton-connect-button"></div>
+  </div>
 
-    <div class="score-container">
-        <div class="score-title">موجودی $WLF شما</div>
-        <div class="score-value">
-            <span id="score">0</span>
-            <span style="font-size: 20px;">$WLF</span>
-        </div>
+  <!-- Balance -->
+  <div class="balance-container">
+    <div class="balance-label">Your $WLF Balance</div>
+    <div class="balance-val"><i class="fa-solid fa-coins"></i> <span id="balance">0</span></div>
+  </div>
+
+  <!-- Coin Tap Area -->
+  <div class="tap-area">
+    <button class="coin-btn" id="tapBtn">
+      <div class="coin-logo">$WLF</div>
+      <div class="coin-sub">TAP TO MINE</div>
+    </button>
+  </div>
+
+  <!-- Energy Bar -->
+  <div class="energy-container">
+    <div class="energy-stats">
+      <span><i class="fa-solid fa-bolt" style="color: var(--accent-gold);"></i> Energy</span>
+      <span><span id="energy">3000</span> / 3000</span>
     </div>
-
-    <div class="coin-container" id="coinContainer">
-        <div class="coin" id="coin">
-            <div class="coin-symbol">$WLF</div>
-            <div class="coin-subtext">کلیک کنید (+۳)</div>
-        </div>
+    <div class="energy-bar-bg">
+      <div class="energy-bar-fill" id="energyFill"></div>
     </div>
+  </div>
 
-    <div class="energy-container">
-        <div class="energy-header">
-            <span>⚡ انرژی باقی‌مانده</span>
-            <span><strong id="energy">3000</strong> / 3000</span>
-        </div>
-        <div class="energy-bar-outer">
-            <div class="energy-bar-inner" id="energyBar"></div>
-        </div>
+  <!-- Referral / Invite Friends -->
+  <div class="ref-card">
+    <div class="ref-title"><i class="fa-solid fa-users"></i> Invite Friends & Earn $WLF</div>
+    <div class="ref-desc">Get +1,000 $WLF tokens for every friend you invite!</div>
+    <div class="ref-btns">
+      <button class="ref-btn btn-copy" id="copyRefBtn"><i class="fa-regular fa-copy"></i> Copy Link</button>
+      <button class="ref-btn btn-share" id="shareRefBtn"><i class="fa-paper-plane"></i> Share</button>
     </div>
+  </div>
 
-    <div class="action-grid">
-        <button class="btn btn-primary" onclick="openClaimModal()">
-            🎁 ثبت درخواست برداشت توکن
-        </button>
-        <button class="btn btn-secondary" onclick="openManualWalletModal()">
-            ✏️ ثبت دستی آدرس ولت (در صورت ارور اتصال)
-        </button>
+  <!-- Actions -->
+  <div class="actions">
+    <button class="btn-claim" id="claimBtn"><i class="fa-solid fa-wallet"></i> Claim Tokens (Min 10,000 $WLF)</button>
+  </div>
+
+  <!-- Claim Modal -->
+  <div class="modal-overlay" id="claimModal">
+    <div class="modal-content">
+      <div class="modal-title">Withdrawal Request</div>
+      <div class="modal-text">
+        جهت نهایی‌سازی و انتقال توکن‌های <b>$WLF</b> به کیف پول شما، لطفا مقدار <b>0.03 TON</b> بابت کارمزد شبکه به آدرس زیر واریز کنید.<br><br>
+        ⚠️ <b>مهم:</b> آدرس ولت خود را در بخش <b>Comment/Memo</b> هنگام ارسال قید کنید.
+      </div>
+      <div class="wallet-box" id="projectWallet">EQAUEpGOGqbJy-UIxQ6qblhqAROxgDuiMeB17zImB90n6st0</div>
+      <button class="ref-btn btn-share" style="width:100%; margin-bottom: 8px;" id="copyWalletBtn"><i class="fa-regular fa-copy"></i> Copy Address</button>
+      <button class="btn-close" id="closeModalBtn">بستن</button>
     </div>
+  </div>
 
-    <div class="guide-box">
-        <div class="guide-title">💡 راهنمای اتصال کیف پول و برداشت:</div>
-        <div class="guide-text">
-            ۱. برای اتصال خودکار روی دکمه <strong>Connect Wallet</strong> بالای صفحه بزنید.<br>
-            ۲. اگر به دلیل اختلال <strong>فیلترشکن/اینترنت</strong> ارور دریافت کردید، روی دکمه <strong>«ثبت دستی آدرس ولت»</strong> کلیک کرده و آدرس Tonkeeper خود را وارد کنید.<br>
-            ۳. حداقل میزان موجودی برای برداشت: <strong>۱۰,۰۰۰ توکن $WLF</strong><br>
-            ۴. هزینه پردازش و کارمزد شبکه: <strong>0.03 TON</strong>
-        </div>
-    </div>
+  <script>
+    // Init Telegram Web App
+    const tg = window.Telegram?.WebApp;
+    if (tg) tg.expand();
 
-    <!-- Modal Manual Wallet -->
-    <div class="modal" id="manualWalletModal">
-        <div class="modal-content">
-            <h3 style="font-size: 16px; margin-bottom: 10px;">ورود دستی آدرس کیف پول</h3>
-            <p style="font-size: 12px; color: var(--text-sub); line-height: 1.5;">
-                اگر اتصال خودکار Tonkeeper ارور داد، آدرس TON خود را اینجا وارد کنید:
-            </p>
-            <input type="text" class="input-box" id="manualAddressInput" placeholder="EQAUEpGOGqbJy...">
-            <button class="btn btn-primary" style="width: 100%; margin-bottom: 8px;" onclick="saveManualWallet()">ثبت آدرس دستی</button>
-            <button class="btn btn-secondary" style="width: 100%; color: #fff;" onclick="closeManualWalletModal()">انصراف</button>
-        </div>
-    </div>
+    // User Data & Game State
+    let balance = parseInt(localStorage.getItem('wlf_balance') || '0');
+    let energy = parseInt(localStorage.getItem('wlf_energy') || '3000');
+    const maxEnergy = 3000;
+    const tapValue = 3;
+    const energyRegenRate = 5; // 5 per second
+    let userId = 'user_' + Math.floor(Math.random() * 1000000);
 
-    <!-- Modal Claim -->
-    <div class="modal" id="claimModal">
-        <div class="modal-content">
-            <h3 style="font-size: 16px; margin-bottom: 10px; color: var(--accent-color);">درخواست برداشت $WLF</h3>
-            <p style="font-size: 12px; color: var(--text-sub); line-height: 1.6; text-align: right;">
-                جهت ثبت نهایی درخواست، لطفاً مبلغ <strong>0.03 TON</strong> را به آدرس زیر واریز کنید و در بخش <strong>Comment (یادداشت)</strong>، آدرس کیف پول خودتان را بنویسید:
-            </p>
-            
-            <input type="text" class="input-box" id="adminWallet" value="EQAUEpGOGqbJy-UIxQ6qblhqAROxgDuiMeB17zImB90n6st0" readonly>
-            
-            <button class="btn" style="width: 100%; margin-bottom: 8px; background: rgba(255,255,255,0.1);" onclick="copyAdminWallet()">
-                📋 کپی آدرس واریز کارمزد
-            </button>
+    // Elements
+    const balanceEl = document.getElementById('balance');
+    const energyEl = document.getElementById('energy');
+    const energyFillEl = document.getElementById('energyFill');
+    const tapBtn = document.getElementById('tapBtn');
+    const claimBtn = document.getElementById('claimBtn');
+    const claimModal = document.getElementById('claimModal');
+    const closeModalBtn = document.getElementById('closeModalBtn');
+    const copyWalletBtn = document.getElementById('copyWalletBtn');
+    const copyRefBtn = document.getElementById('copyRefBtn');
+    const shareRefBtn = document.getElementById('shareRefBtn');
 
-            <button class="btn btn-primary" style="width: 100%; margin-bottom: 8px;" onclick="confirmClaim()">
-                تایید انجام واریز کارمزد
-            </button>
-            <button class="btn" style="width: 100%; background: transparent; color: var(--text-sub);" onclick="closeClaimModal()">انصراف</button>
-        </div>
-    </div>
+    // Update UI
+    function updateUI() {
+      balanceEl.textContent = balance.toLocaleString();
+      energyEl.textContent = energy;
+      energyFillEl.style.width = `${(energy / maxEnergy) * 100}%`;
+      localStorage.setItem('wlf_balance', balance);
+      localStorage.setItem('wlf_energy', energy);
 
-    <script>
-        let tonConnectUI;
-        try {
-            tonConnectUI = new TON_CONNECT_UI.TonConnectUI({
-                manifestUrl: 'https://kandoo110.github.io/wlf-game/tonconnect-manifest.json',
-                buttonRootId: 'ton-connect-button'
-            });
-        } catch (e) {
-            console.error("TON Connect Init Error:", e);
-        }
+      // Telegram Cloud Sync if available
+      if (tg && tg.CloudStorage) {
+        tg.CloudStorage.setItem('wlf_balance', balance.toString());
+      }
+    }
 
-        let tg = window.Telegram?.WebApp;
-        if (tg) {
-            tg.expand();
-            if (tg.initDataUnsafe?.user) {
-                document.getElementById('userName').innerText = tg.initDataUnsafe.user.first_name;
-                document.getElementById('userAvatar').innerText = tg.initDataUnsafe.user.first_name[0];
-            }
-        }
+    // Set User Profile from Telegram
+    if (tg && tg.initDataUnsafe && tg.initDataUnsafe.user) {
+      const u = tg.initDataUnsafe.user;
+      userId = u.id;
+      document.getElementById('userName').textContent = u.first_name || 'Player';
+      if (u.first_name) {
+        document.getElementById('userAvatar').textContent = u.first_name.charAt(0).toUpperCase();
+      }
+    }
 
-        // تنظیمات جدید سرعت و ظرفیت انرژی
-        const maxEnergy = 3000;      // ظرفیت انرژی جدید
-        const tapPower = 3;          // قدرت هر کلیک (+۳ سکه)
-        const regenPerSec = 5;       // سرعت شارژ (۵ واحد در ثانیه)
+    // Tap Handling
+    tapBtn.addEventListener('click', (e) => {
+      if (energy >= tapValue) {
+        balance += tapValue;
+        energy -= tapValue;
+        updateUI();
 
-        let score = parseInt(localStorage.getItem('wlf_score')) || 0;
-        let energy = parseInt(localStorage.getItem('wlf_energy')) ?? maxEnergy;
-        let lastTime = parseInt(localStorage.getItem('wlf_last_time')) || Date.now();
-        let manualWallet = localStorage.getItem('wlf_manual_wallet') || '';
+        // Floating animation text
+        const rect = tapBtn.getBoundingClientRect();
+        const floating = document.createElement('div');
+        floating.className = 'floating-text';
+        floating.textContent = `+${tapValue}`;
+        floating.style.left = `${e.clientX || (rect.left + rect.width / 2)}px`;
+        floating.style.top = `${e.clientY || (rect.top + rect.height / 2)}px`;
+        document.body.appendChild(floating);
 
-        // محاسبه انرژی زمان آفلاین بودن کاربر (Offline Energy Regeneration)
-        const now = Date.now();
-        const secondsPassed = Math.floor((now - lastTime) / 1000);
-        if (secondsPassed > 0) {
-            energy = Math.min(maxEnergy, energy + (secondsPassed * regenPerSec));
-        }
+        setTimeout(() => floating.remove(), 800);
+      }
+    });
 
-        const scoreEl = document.getElementById('score');
-        const energyEl = document.getElementById('energy');
-        const energyBar = document.getElementById('energyBar');
-        const coinContainer = document.getElementById('coinContainer');
+    // Energy Regeneration Interval
+    setInterval(() => {
+      if (energy < maxEnergy) {
+        energy = Math.min(maxEnergy, energy + energyRegenRate);
+        updateUI();
+      }
+    }, 1000);
 
-        scoreEl.innerText = score.toLocaleString();
-        updateEnergyUI();
+    // Referral System Links
+    const refLink = `https://t.me/WLF_coin_bot?start=ref_${userId}`;
 
-        function saveProgress() {
-            try {
-                localStorage.setItem('wlf_score', score);
-                localStorage.setItem('wlf_energy', energy);
-                localStorage.setItem('wlf_last_time', Date.now());
-            } catch(e){}
-        }
+    copyRefBtn.addEventListener('click', () => {
+      navigator.clipboard.writeText(refLink);
+      alert('Referral link copied to clipboard!');
+    });
 
-        function handleTap(e) {
-            e.preventDefault();
-            if (energy < tapPower) return;
+    shareRefBtn.addEventListener('click', () => {
+      const shareText = `🚀 Join me on WLF Tap-to-Earn game and mine real $WLF tokens! Tradeable on STON.fi & DeDust.io. Use my link to get a bonus:`;
+      const fullShareUrl = `https://t.me/share/url?url=${encodeURIComponent(refLink)}&text=${encodeURIComponent(shareText)}`;
+      if (tg) {
+        tg.openTelegramLink(fullShareUrl);
+      } else {
+        window.open(fullShareUrl, '_blank');
+      }
+    });
 
-            score += tapPower;
-            energy -= tapPower;
-            saveProgress();
+    // Claim / Withdrawal Modal Logic
+    claimBtn.addEventListener('click', () => {
+      if (balance >= 10000) {
+        claimModal.style.display = 'flex';
+      } else {
+        alert('Minimum withdrawal threshold is 10,000 $WLF tokens.');
+      }
+    });
 
-            scoreEl.innerText = score.toLocaleString();
-            updateEnergyUI();
+    closeModalBtn.addEventListener('click', () => {
+      claimModal.style.display = 'none';
+    });
 
-            let clientX = e.clientX || (e.touches && e.touches[0] ? e.touches[0].clientX : window.innerWidth/2);
-            let clientY = e.clientY || (e.touches && e.touches[0] ? e.touches[0].clientY : window.innerHeight/2);
+    copyWalletBtn.addEventListener('click', () => {
+      navigator.clipboard.writeText('EQAUEpGOGqbJy-UIxQ6qblhqAROxgDuiMeB17zImB90n6st0');
+      alert('آدرس ولت کپی شد!');
+    });
 
-            createFloatingText(clientX, clientY);
+    // Initialize UI on Load
+    updateUI();
 
-            if (tg && tg.HapticFeedback) {
-                tg.HapticFeedback.impactOccurred('light');
-            }
-        }
-
-        coinContainer.addEventListener('touchstart', handleTap, {passive: false});
-        coinContainer.addEventListener('mousedown', (e) => {
-            if (!('ontouchstart' in window)) handleTap(e);
-        });
-
-        function createFloatingText(x, y) {
-            const rect = coinContainer.getBoundingClientRect();
-            const text = document.createElement('div');
-            text.className = 'floating-text';
-            text.innerText = `+${tapPower}`;
-            text.style.left = `${x - rect.left - 15}px`;
-            text.style.top = `${y - rect.top - 30}px`;
-            coinContainer.appendChild(text);
-            setTimeout(() => text.remove(), 800);
-        }
-
-        function updateEnergyUI() {
-            energyEl.innerText = Math.floor(energy);
-            const percentage = (energy / maxEnergy) * 100;
-            energyBar.style.width = `${percentage}%`;
-        }
-
-        // شارژ زنده هر ثانیه ۵ واحد انرژی
-        setInterval(() => {
-            if (energy < maxEnergy) {
-                energy = Math.min(maxEnergy, energy + regenPerSec);
-                saveProgress();
-                updateEnergyUI();
-            }
-        }, 1000);
-
-        function openManualWalletModal() {
-            if (manualWallet) {
-                document.getElementById('manualAddressInput').value = manualWallet;
-            }
-            document.getElementById('manualWalletModal').style.display = 'flex';
-        }
-
-        function closeManualWalletModal() {
-            document.getElementById('manualWalletModal').style.display = 'none';
-        }
-
-        function saveManualWallet() {
-            const addr = document.getElementById('manualAddressInput').value.trim();
-            if (addr.length < 10) {
-                alert('لطفاً یک آدرس معتبر TON وارد کنید.');
-                return;
-            }
-            manualWallet = addr;
-            localStorage.setItem('wlf_manual_wallet', manualWallet);
-            alert('آدرس کیف پول شما ثبت شد!');
-            closeManualWalletModal();
-        }
-
-        function openClaimModal() {
-            if (score < 10000) {
-                alert('حداقل میزان موجودی برای برداشت ۱۰,۰۰۰ توکن $WLF است.');
-                return;
-            }
-            document.getElementById('claimModal').style.display = 'flex';
-        }
-
-        function closeClaimModal() {
-            document.getElementById('claimModal').style.display = 'none';
-        }
-
-        function copyAdminWallet() {
-            const walletInput = document.getElementById('adminWallet');
-            navigator.clipboard.writeText(walletInput.value);
-            alert('آدرس کیف پول کپی شد!\nلطفاً 0.03 TON به این آدرس بفرستید و در بخش Comment آدرس خودتان را بنویسید.');
-        }
-
-        function confirmClaim() {
-            alert('درخواست شما ثبت گردید. پس از بررسی تراکنش کارمزد (0.03 TON)، توکن‌های WLF ظرف ۲۴ ساعت واریز می‌شوند.');
-            closeClaimModal();
-        }
-    </script>
+    // TonConnect UI Integration
+    const tonConnectUI = new TON_CONNECT_UI.TonConnectUI({
+      manifestUrl: 'https://kandoo110.github.io/wlf-game/tonconnect-manifest.json',
+      buttonRootId: 'ton-connect-button'
+    });
+  </script>
 </body>
 </html>
