@@ -426,19 +426,33 @@
     const tg = window.Telegram?.WebApp;
     if (tg) tg.expand();
 
+    // شناسایی دقیق شناسه کاربر از تلگرام
+    let userId = 'guest_' + Math.floor(Math.random() * 1000000);
+    let userName = 'Player';
+
+    if (tg && tg.initDataUnsafe && tg.initDataUnsafe.user) {
+      const u = tg.initDataUnsafe.user;
+      userId = 'user_' + u.id;
+      userName = u.first_name || 'Player';
+      document.getElementById('userName').textContent = userName;
+      if (u.first_name) {
+        document.getElementById('userAvatar').textContent = u.first_name.charAt(0).toUpperCase();
+      }
+    }
+
     const maxEnergy = 3000;
     const tapValue = 3;
-    const energyRegenRate = 5; // ۵ انرژی در هر ثانیه
+    const energyRegenRate = 5;
 
+    // بارگذاری اختصاصی موجودی و انرژی مختص همان کاربر (جلوگیری از تداخل روی یک گوشی)
     function getStoredBalance() {
-      const val = localStorage.getItem('wlf_balance') || localStorage.getItem('balance') || '0';
+      const val = localStorage.getItem(`${userId}_balance`) || localStorage.getItem('wlf_balance') || '0';
       return parseInt(val, 10);
     }
 
-    // بازیابی هوشمند انرژی آفلاین بر اساس اختلاف زمان
     function getStoredEnergy() {
-      const savedEnergy = parseInt(localStorage.getItem('wlf_energy') || '3000', 10);
-      const lastTime = parseInt(localStorage.getItem('wlf_last_time') || Date.now().toString(), 10);
+      const savedEnergy = parseInt(localStorage.getItem(`${userId}_energy`) || '3000', 10);
+      const lastTime = parseInt(localStorage.getItem(`${userId}_last_time`) || Date.now().toString(), 10);
       const now = Date.now();
       const elapsedSeconds = Math.floor((now - lastTime) / 1000);
 
@@ -451,7 +465,6 @@
 
     let balance = getStoredBalance();
     let energy = getStoredEnergy();
-    let userId = 'user_' + Math.floor(Math.random() * 1000000);
 
     const balanceEl = document.getElementById('balance');
     const energyEl = document.getElementById('energy');
@@ -476,33 +489,25 @@
       energyEl.textContent = energy;
       energyFillEl.style.width = `${(energy / maxEnergy) * 100}%`;
       
-      localStorage.setItem('wlf_balance', balance.toString());
-      localStorage.setItem('wlf_energy', energy.toString());
-      localStorage.setItem('wlf_last_time', Date.now().toString());
+      // ذخیره‌سازی کاملاً اختصاصی برای این کاربر
+      localStorage.setItem(`${userId}_balance`, balance.toString());
+      localStorage.setItem(`${userId}_energy`, energy.toString());
+      localStorage.setItem(`${userId}_last_time`, Date.now().toString());
     }
 
-    if (tg && tg.initDataUnsafe && tg.initDataUnsafe.user) {
-      const u = tg.initDataUnsafe.user;
-      userId = u.id;
-      document.getElementById('userName').textContent = u.first_name || 'Player';
-      if (u.first_name) {
-        document.getElementById('userAvatar').textContent = u.first_name.charAt(0).toUpperCase();
-      }
-    }
-
-    // سیستم شناسایی رفرال
+    // بررسی سیستم رفرال برای کاربر جدید
     const startParam = tg?.initDataUnsafe?.start_param || '';
     if (startParam && startParam.startsWith('ref_')) {
       const referrerId = startParam.replace('ref_', '');
-      const hasBeenReferred = localStorage.getItem('wlf_referred_by');
-      if (!hasBeenReferred && referrerId !== userId.toString()) {
-        localStorage.setItem('wlf_referred_by', referrerId);
-        balance += 1000;
+      const hasBeenReferred = localStorage.getItem(`${userId}_referred_by`);
+      if (!hasBeenReferred && referrerId !== userId) {
+        localStorage.setItem(`${userId}_referred_by`, referrerId);
+        balance += 1000; // پاداش دعوت
         updateUI();
       }
     }
 
-    const savedManualWallet = localStorage.getItem('wlf_user_wallet');
+    const savedManualWallet = localStorage.getItem(`${userId}_wallet`);
     if (savedManualWallet) {
       manualWalletInput.value = savedManualWallet;
     }
@@ -525,7 +530,6 @@
       }
     });
 
-    // بازسازی زنده انرژی در زمان حضور در صفحه
     setInterval(() => {
       if (energy < maxEnergy) {
         energy = Math.min(maxEnergy, energy + energyRegenRate);
@@ -533,11 +537,10 @@
       }
     }, 1000);
 
-    // ذخیره زمان هنگام بستن یا پنهان شدن بازی
     document.addEventListener('visibilitychange', () => {
       if (document.visibilityState === 'hidden') {
-        localStorage.setItem('wlf_last_time', Date.now().toString());
-        localStorage.setItem('wlf_energy', energy.toString());
+        localStorage.setItem(`${userId}_last_time`, Date.now().toString());
+        localStorage.setItem(`${userId}_energy`, energy.toString());
       } else if (document.visibilityState === 'visible') {
         energy = getStoredEnergy();
         updateUI();
@@ -589,7 +592,7 @@
     saveWalletBtn.addEventListener('click', () => {
       const addr = manualWalletInput.value.trim();
       if (addr.length > 10) {
-        localStorage.setItem('wlf_user_wallet', addr);
+        localStorage.setItem(`${userId}_wallet`, addr);
         alert('آدرس ولت شما با موفقیت ثبت شد!');
         manualModal.style.display = 'none';
       } else {
