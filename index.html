@@ -220,7 +220,6 @@
             justify-content: center;
         }
 
-        /* Guide Card Styling */
         .guide-box {
             width: 100%;
             max-width: 350px;
@@ -292,7 +291,6 @@
                 <div style="font-size: 11px; color: var(--text-sub);">شبکه TON</div>
             </div>
         </div>
-        <!-- دکمه اتصال خودکار کیف پول TON Connect -->
         <div id="ton-connect-button"></div>
     </div>
 
@@ -307,14 +305,14 @@
     <div class="coin-container" id="coinContainer">
         <div class="coin" id="coin">
             <div class="coin-symbol">$WLF</div>
-            <div class="coin-subtext">کلیک کنید</div>
+            <div class="coin-subtext">کلیک کنید (+۳)</div>
         </div>
     </div>
 
     <div class="energy-container">
         <div class="energy-header">
             <span>⚡ انرژی باقی‌مانده</span>
-            <span><strong id="energy">1000</strong> / 1000</span>
+            <span><strong id="energy">3000</strong> / 3000</span>
         </div>
         <div class="energy-bar-outer">
             <div class="energy-bar-inner" id="energyBar"></div>
@@ -325,13 +323,11 @@
         <button class="btn btn-primary" onclick="openClaimModal()">
             🎁 ثبت درخواست برداشت توکن
         </button>
-        <!-- دکمه ورود دستی آدرس ولت -->
         <button class="btn btn-secondary" onclick="openManualWalletModal()">
             ✏️ ثبت دستی آدرس ولت (در صورت ارور اتصال)
         </button>
     </div>
 
-    <!-- باکس راهنمای کامل روی صفحه -->
     <div class="guide-box">
         <div class="guide-title">💡 راهنمای اتصال کیف پول و برداشت:</div>
         <div class="guide-text">
@@ -342,20 +338,20 @@
         </div>
     </div>
 
-    <!-- Modal for Manual Wallet Entry -->
+    <!-- Modal Manual Wallet -->
     <div class="modal" id="manualWalletModal">
         <div class="modal-content">
             <h3 style="font-size: 16px; margin-bottom: 10px;">ورود دستی آدرس کیف پول</h3>
             <p style="font-size: 12px; color: var(--text-sub); line-height: 1.5;">
                 اگر اتصال خودکار Tonkeeper ارور داد، آدرس TON خود را اینجا وارد کنید:
             </p>
-            <input type="text" class="input-box" id="manualAddressInput" placeholder="UQByK9oOXxjYegpN28D_Z9fRC9uKx0s0Nc2VXA316gVILS4e">
+            <input type="text" class="input-box" id="manualAddressInput" placeholder="EQAUEpGOGqbJy...">
             <button class="btn btn-primary" style="width: 100%; margin-bottom: 8px;" onclick="saveManualWallet()">ثبت آدرس دستی</button>
             <button class="btn btn-secondary" style="width: 100%; color: #fff;" onclick="closeManualWalletModal()">انصراف</button>
         </div>
     </div>
 
-    <!-- Modal for Claiming -->
+    <!-- Modal Claim -->
     <div class="modal" id="claimModal">
         <div class="modal-content">
             <h3 style="font-size: 16px; margin-bottom: 10px; color: var(--accent-color);">درخواست برداشت $WLF</h3>
@@ -377,7 +373,6 @@
     </div>
 
     <script>
-        // Initialize TON Connect UI safely
         let tonConnectUI;
         try {
             tonConnectUI = new TON_CONNECT_UI.TonConnectUI({
@@ -388,7 +383,6 @@
             console.error("TON Connect Init Error:", e);
         }
 
-        // Init Telegram SDK
         let tg = window.Telegram?.WebApp;
         if (tg) {
             tg.expand();
@@ -398,11 +392,22 @@
             }
         }
 
-        // Game State Variables
+        // تنظیمات جدید سرعت و ظرفیت انرژی
+        const maxEnergy = 3000;      // ظرفیت انرژی جدید
+        const tapPower = 3;          // قدرت هر کلیک (+۳ سکه)
+        const regenPerSec = 5;       // سرعت شارژ (۵ واحد در ثانیه)
+
         let score = parseInt(localStorage.getItem('wlf_score')) || 0;
-        let energy = parseInt(localStorage.getItem('wlf_energy')) || 1000;
+        let energy = parseInt(localStorage.getItem('wlf_energy')) ?? maxEnergy;
+        let lastTime = parseInt(localStorage.getItem('wlf_last_time')) || Date.now();
         let manualWallet = localStorage.getItem('wlf_manual_wallet') || '';
-        const maxEnergy = 1000;
+
+        // محاسبه انرژی زمان آفلاین بودن کاربر (Offline Energy Regeneration)
+        const now = Date.now();
+        const secondsPassed = Math.floor((now - lastTime) / 1000);
+        if (secondsPassed > 0) {
+            energy = Math.min(maxEnergy, energy + (secondsPassed * regenPerSec));
+        }
 
         const scoreEl = document.getElementById('score');
         const energyEl = document.getElementById('energy');
@@ -416,16 +421,16 @@
             try {
                 localStorage.setItem('wlf_score', score);
                 localStorage.setItem('wlf_energy', energy);
+                localStorage.setItem('wlf_last_time', Date.now());
             } catch(e){}
         }
 
-        // Tap Event Handler
         function handleTap(e) {
             e.preventDefault();
-            if (energy <= 0) return;
+            if (energy < tapPower) return;
 
-            score += 1;
-            energy -= 1;
+            score += tapPower;
+            energy -= tapPower;
             saveProgress();
 
             scoreEl.innerText = score.toLocaleString();
@@ -450,7 +455,7 @@
             const rect = coinContainer.getBoundingClientRect();
             const text = document.createElement('div');
             text.className = 'floating-text';
-            text.innerText = '+1';
+            text.innerText = `+${tapPower}`;
             text.style.left = `${x - rect.left - 15}px`;
             text.style.top = `${y - rect.top - 30}px`;
             coinContainer.appendChild(text);
@@ -458,21 +463,20 @@
         }
 
         function updateEnergyUI() {
-            energyEl.innerText = energy;
+            energyEl.innerText = Math.floor(energy);
             const percentage = (energy / maxEnergy) * 100;
             energyBar.style.width = `${percentage}%`;
         }
 
-        // Energy Regeneration
+        // شارژ زنده هر ثانیه ۵ واحد انرژی
         setInterval(() => {
             if (energy < maxEnergy) {
-                energy += 1;
+                energy = Math.min(maxEnergy, energy + regenPerSec);
                 saveProgress();
                 updateEnergyUI();
             }
-        }, 1500);
+        }, 1000);
 
-        // Manual Wallet Modals
         function openManualWalletModal() {
             if (manualWallet) {
                 document.getElementById('manualAddressInput').value = manualWallet;
@@ -496,7 +500,6 @@
             closeManualWalletModal();
         }
 
-        // Claim Modals
         function openClaimModal() {
             if (score < 10000) {
                 alert('حداقل میزان موجودی برای برداشت ۱۰,۰۰۰ توکن $WLF است.');
