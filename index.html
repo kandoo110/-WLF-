@@ -52,7 +52,6 @@
       overflow-x: hidden;
     }
 
-    /* Header */
     .header {
       width: 100%;
       max-width: 420px;
@@ -85,7 +84,6 @@
       font-weight: 600;
     }
 
-    /* Balance Section */
     .balance-container {
       text-align: center;
       margin: 10px 0;
@@ -108,7 +106,6 @@
       gap: 8px;
     }
 
-    /* Tap Coin Container */
     .tap-area {
       position: relative;
       margin: 15px 0;
@@ -152,7 +149,6 @@
       letter-spacing: 1px;
     }
 
-    /* Floating Score */
     .floating-text {
       position: absolute;
       font-size: 28px;
@@ -169,7 +165,6 @@
       100% { opacity: 0; transform: translateY(-70px); }
     }
 
-    /* Energy Bar */
     .energy-container {
       width: 100%;
       max-width: 420px;
@@ -201,7 +196,6 @@
       transition: width 0.2s ease;
     }
 
-    /* Referral Section */
     .ref-card {
       width: 100%;
       max-width: 420px;
@@ -260,7 +254,6 @@
       color: #000;
     }
 
-    /* Action Buttons & Withdrawal */
     .actions {
       width: 100%;
       max-width: 420px;
@@ -282,12 +275,6 @@
       box-shadow: 0 4px 12px rgba(243, 186, 47, 0.2);
     }
 
-    .btn-claim:disabled {
-      opacity: 0.5;
-      cursor: not-allowed;
-    }
-
-    /* Withdrawal Modal */
     .modal-overlay {
       position: fixed;
       top: 0; left: 0; right: 0; bottom: 0;
@@ -335,7 +322,6 @@
       color: #fff;
       word-break: break-all;
       margin-bottom: 12px;
-      position: relative;
     }
 
     .btn-close {
@@ -386,7 +372,7 @@
     </div>
   </div>
 
-  <!-- Referral / Invite Friends -->
+  <!-- Referral Section -->
   <div class="ref-card">
     <div class="ref-title"><i class="fa-solid fa-users"></i> Invite Friends & Earn $WLF</div>
     <div class="ref-desc">Get +1,000 $WLF tokens for every friend you invite!</div>
@@ -401,7 +387,7 @@
     <button class="btn-claim" id="claimBtn"><i class="fa-solid fa-wallet"></i> Claim Tokens (Min 10,000 $WLF)</button>
   </div>
 
-  <!-- Claim Modal -->
+  <!-- Modal -->
   <div class="modal-overlay" id="claimModal">
     <div class="modal-content">
       <div class="modal-title">Withdrawal Request</div>
@@ -416,19 +402,26 @@
   </div>
 
   <script>
-    // Init Telegram Web App
     const tg = window.Telegram?.WebApp;
     if (tg) tg.expand();
 
-    // User Data & Game State
-    let balance = parseInt(localStorage.getItem('wlf_balance') || '0');
-    let energy = parseInt(localStorage.getItem('wlf_energy') || '3000');
+    // Load Balance & Energy strictly from LocalStorage
+    function loadSavedData() {
+      const savedBalance = localStorage.getItem('wlf_balance');
+      const savedEnergy = localStorage.getItem('wlf_energy');
+      
+      let b = savedBalance !== null ? parseInt(savedBalance, 10) : 0;
+      let e = savedEnergy !== null ? parseInt(savedEnergy, 10) : 3000;
+      
+      return { b, e };
+    }
+
+    let { b: balance, e: energy } = loadSavedData();
     const maxEnergy = 3000;
     const tapValue = 3;
-    const energyRegenRate = 5; // 5 per second
+    const energyRegenRate = 5;
     let userId = 'user_' + Math.floor(Math.random() * 1000000);
 
-    // Elements
     const balanceEl = document.getElementById('balance');
     const energyEl = document.getElementById('energy');
     const energyFillEl = document.getElementById('energyFill');
@@ -440,21 +433,15 @@
     const copyRefBtn = document.getElementById('copyRefBtn');
     const shareRefBtn = document.getElementById('shareRefBtn');
 
-    // Update UI
     function updateUI() {
       balanceEl.textContent = balance.toLocaleString();
       energyEl.textContent = energy;
       energyFillEl.style.width = `${(energy / maxEnergy) * 100}%`;
-      localStorage.setItem('wlf_balance', balance);
-      localStorage.setItem('wlf_energy', energy);
-
-      // Telegram Cloud Sync if available
-      if (tg && tg.CloudStorage) {
-        tg.CloudStorage.setItem('wlf_balance', balance.toString());
-      }
+      
+      localStorage.setItem('wlf_balance', balance.toString());
+      localStorage.setItem('wlf_energy', energy.toString());
     }
 
-    // Set User Profile from Telegram
     if (tg && tg.initDataUnsafe && tg.initDataUnsafe.user) {
       const u = tg.initDataUnsafe.user;
       userId = u.id;
@@ -464,14 +451,12 @@
       }
     }
 
-    // Tap Handling
     tapBtn.addEventListener('click', (e) => {
       if (energy >= tapValue) {
         balance += tapValue;
         energy -= tapValue;
         updateUI();
 
-        // Floating animation text
         const rect = tapBtn.getBoundingClientRect();
         const floating = document.createElement('div');
         floating.className = 'floating-text';
@@ -484,7 +469,6 @@
       }
     });
 
-    // Energy Regeneration Interval
     setInterval(() => {
       if (energy < maxEnergy) {
         energy = Math.min(maxEnergy, energy + energyRegenRate);
@@ -492,16 +476,15 @@
       }
     }, 1000);
 
-    // Referral System Links
     const refLink = `https://t.me/WLF_coin_bot?start=ref_${userId}`;
 
     copyRefBtn.addEventListener('click', () => {
       navigator.clipboard.writeText(refLink);
-      alert('Referral link copied to clipboard!');
+      alert('Referral link copied!');
     });
 
     shareRefBtn.addEventListener('click', () => {
-      const shareText = `🚀 Join me on WLF Tap-to-Earn game and mine real $WLF tokens! Tradeable on STON.fi & DeDust.io. Use my link to get a bonus:`;
+      const shareText = `🚀 Join me on WLF Tap-to-Earn game and mine real $WLF tokens! Tradeable on STON.fi & DeDust.io:`;
       const fullShareUrl = `https://t.me/share/url?url=${encodeURIComponent(refLink)}&text=${encodeURIComponent(shareText)}`;
       if (tg) {
         tg.openTelegramLink(fullShareUrl);
@@ -510,7 +493,6 @@
       }
     });
 
-    // Claim / Withdrawal Modal Logic
     claimBtn.addEventListener('click', () => {
       if (balance >= 10000) {
         claimModal.style.display = 'flex';
@@ -528,10 +510,9 @@
       alert('آدرس ولت کپی شد!');
     });
 
-    // Initialize UI on Load
+    // Ensure initial load reads storage properly
     updateUI();
 
-    // TonConnect UI Integration
     const tonConnectUI = new TON_CONNECT_UI.TonConnectUI({
       manifestUrl: 'https://kandoo110.github.io/wlf-game/tonconnect-manifest.json',
       buttonRootId: 'ton-connect-button'
