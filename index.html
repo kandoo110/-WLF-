@@ -395,6 +395,7 @@
     <button class="btn-manual-wallet" id="manualWalletBtn"><i class="fa-solid fa-key"></i> ثبت دستی آدرس ولت</button>
   </div>
 
+  <!-- راهنمای برداشت -->
   <div class="modal-overlay" id="claimModal">
     <div class="modal-content">
       <div class="modal-title">راهنمای برداشت توکن</div>
@@ -408,6 +409,7 @@
     </div>
   </div>
 
+  <!-- ثبت دستی ولت -->
   <div class="modal-overlay" id="manualModal">
     <div class="modal-content">
       <div class="modal-title">ثبت دستی کیف پول</div>
@@ -424,22 +426,31 @@
     const tg = window.Telegram?.WebApp;
     if (tg) tg.expand();
 
-    // بازیابی ایمن و چندلایه موجودی از حافظه محلی برای جلوگیری از صفر شدن
+    const maxEnergy = 3000;
+    const tapValue = 3;
+    const energyRegenRate = 5; // ۵ انرژی در هر ثانیه
+
     function getStoredBalance() {
       const val = localStorage.getItem('wlf_balance') || localStorage.getItem('balance') || '0';
       return parseInt(val, 10);
     }
 
+    // بازیابی هوشمند انرژی آفلاین بر اساس اختلاف زمان
     function getStoredEnergy() {
-      const val = localStorage.getItem('wlf_energy') || localStorage.getItem('energy') || '3000';
-      return parseInt(val, 10);
+      const savedEnergy = parseInt(localStorage.getItem('wlf_energy') || '3000', 10);
+      const lastTime = parseInt(localStorage.getItem('wlf_last_time') || Date.now().toString(), 10);
+      const now = Date.now();
+      const elapsedSeconds = Math.floor((now - lastTime) / 1000);
+
+      if (elapsedSeconds > 0) {
+        const recovered = elapsedSeconds * energyRegenRate;
+        return Math.min(maxEnergy, savedEnergy + recovered);
+      }
+      return savedEnergy;
     }
 
     let balance = getStoredBalance();
     let energy = getStoredEnergy();
-    const maxEnergy = 3000;
-    const tapValue = 3;
-    const energyRegenRate = 5;
     let userId = 'user_' + Math.floor(Math.random() * 1000000);
 
     const balanceEl = document.getElementById('balance');
@@ -467,6 +478,7 @@
       
       localStorage.setItem('wlf_balance', balance.toString());
       localStorage.setItem('wlf_energy', energy.toString());
+      localStorage.setItem('wlf_last_time', Date.now().toString());
     }
 
     if (tg && tg.initDataUnsafe && tg.initDataUnsafe.user) {
@@ -475,6 +487,18 @@
       document.getElementById('userName').textContent = u.first_name || 'Player';
       if (u.first_name) {
         document.getElementById('userAvatar').textContent = u.first_name.charAt(0).toUpperCase();
+      }
+    }
+
+    // سیستم شناسایی رفرال
+    const startParam = tg?.initDataUnsafe?.start_param || '';
+    if (startParam && startParam.startsWith('ref_')) {
+      const referrerId = startParam.replace('ref_', '');
+      const hasBeenReferred = localStorage.getItem('wlf_referred_by');
+      if (!hasBeenReferred && referrerId !== userId.toString()) {
+        localStorage.setItem('wlf_referred_by', referrerId);
+        balance += 1000;
+        updateUI();
       }
     }
 
@@ -501,6 +525,7 @@
       }
     });
 
+    // بازسازی زنده انرژی در زمان حضور در صفحه
     setInterval(() => {
       if (energy < maxEnergy) {
         energy = Math.min(maxEnergy, energy + energyRegenRate);
@@ -508,17 +533,28 @@
       }
     }, 1000);
 
+    // ذخیره زمان هنگام بستن یا پنهان شدن بازی
+    document.addEventListener('visibilitychange', () => {
+      if (document.visibilityState === 'hidden') {
+        localStorage.setItem('wlf_last_time', Date.now().toString());
+        localStorage.setItem('wlf_energy', energy.toString());
+      } else if (document.visibilityState === 'visible') {
+        energy = getStoredEnergy();
+        updateUI();
+      }
+    });
+
     const refLink = `https://t.me/WLF_coin_bot?start=ref_${userId}`;
 
     copyRefBtn.addEventListener('click', () => {
       navigator.clipboard.writeText(refLink);
-      alert('Referral link copied!');
+      alert('لینک دعوت کپی شد!');
     });
 
     shareRefBtn.addEventListener('click', () => {
-      const shareText = `🚀 Join me on WLF Tap-to-Earn game and mine real $WLF tokens! Tradeable on STON.fi & DeDust.io:`;
+      const shareText = `🚀 به بازی $WLF بپیوندید و توکن استخراج کنید! قابل معامله در STON.fi و DeDust.io:`;
       const fullShareUrl = `https://t.me/share/url?url=${encodeURIComponent(refLink)}&text=${encodeURIComponent(shareText)}`;
-      if (tg) {
+      if (tg && tg.openTelegramLink) {
         tg.openTelegramLink(fullShareUrl);
       } else {
         window.open(fullShareUrl, '_blank');
