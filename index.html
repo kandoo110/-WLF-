@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-  <title>WLF Tap-to-Earn Game</title>
+  <title>ZZ Games | $WLF Mining App</title>
 
   <!-- Telegram Web App SDK & TON Connect -->
   <script src="https://telegram.org/js/telegram-web-app.js"></script>
@@ -243,7 +243,7 @@
       color: #000;
     }
 
-    /* کارت چالش هدیه */
+    /* Challenge Card */
     .challenge-card {
       width: 100%;
       max-width: 420px;
@@ -296,7 +296,6 @@
       color: #888;
     }
 
-    /* محیط چالش ریاضی درون مودال */
     .math-expression {
       font-size: 22px;
       font-weight: bold;
@@ -410,8 +409,7 @@
       color: var(--text-sub);
       line-height: 1.5;
       margin-bottom: 14px;
-      text-align: right;
-      direction: rtl;
+      text-align: left;
     }
 
     .wallet-box {
@@ -482,11 +480,11 @@
     </div>
   </div>
 
-  <!-- کارت چالش هدیه -->
+  <!-- Challenge Card -->
   <div class="challenge-card">
-    <div class="challenge-title"><i class="fa-solid fa-brain"></i> چالش هدیه (Math Challenge)</div>
-    <div class="challenge-desc" id="challengeLimitText">مسئله ریاضی را حل کن و ۲,۰۰۰ توکن جایزه بگیر!</div>
-    <button class="btn-start-challenge" id="openChallengeBtn"><i class="fa-solid fa-play"></i> ورود به چالش هدیه</button>
+    <div class="challenge-title"><i class="fa-solid fa-brain"></i> Daily Math Challenge</div>
+    <div class="challenge-desc" id="challengeLimitText">Solve the math problem and win 2,000 $WLF tokens!</div>
+    <button class="btn-start-challenge" id="openChallengeBtn"><i class="fa-solid fa-play"></i> Start Math Challenge</button>
   </div>
 
   <div class="ref-card">
@@ -500,64 +498,63 @@
 
   <div class="actions">
     <button class="btn-claim" id="claimBtn"><i class="fa-solid fa-wallet"></i> Claim Tokens (Min 10,000 $WLF)</button>
-    <button class="btn-manual-wallet" id="manualWalletBtn"><i class="fa-solid fa-key"></i> ثبت دستی آدرس ولت</button>
+    <button class="btn-manual-wallet" id="manualWalletBtn"><i class="fa-solid fa-key"></i> Manually Submit Wallet Address</button>
   </div>
 
-  <!-- راهنمای برداشت -->
+  <!-- Claim Modal -->
   <div class="modal-overlay" id="claimModal">
     <div class="modal-content">
-      <div class="modal-title">راهنمای برداشت توکن</div>
+      <div class="modal-title">Token Withdrawal Guide</div>
       <div class="modal-text">
-        جهت نهایی‌سازی و انتقال توکن‌های <b>$WLF</b> به کیف پول شما، لطفا مقدار <b>0.03 TON</b> بابت کارمزد شبکه به آدرس زیر واریز کنید.<br><br>
-        ⚠️ <b>مهم:</b> آدرس ولت خود را در بخش <b>Comment/Memo</b> هنگام ارسال قید کنید.
+        To finalize and transfer your <b>$WLF</b> tokens to your wallet, please transfer <b>0.03 TON</b> for network fee to the address below.<br><br>
+        ⚠️ <b>Important:</b> Mention your wallet address in the <b>Comment/Memo</b> field when sending.
       </div>
       <div class="wallet-box" id="projectWallet">UQByK9oOXxjYegpN28D_Z9fRC9uKx0s0Nc2VXA316gVILS4e</div>
-      <button class="ref-btn btn-share" style="width:100%; margin-bottom: 8px;" id="copyWalletBtn"><i class="fa-regular fa-copy"></i> کپی آدرس ولت</button>
-      <button class="btn-close" id="closeClaimModalBtn">بستن</button>
+      <button class="ref-btn btn-share" style="width:100%; margin-bottom: 8px;" id="copyWalletBtn"><i class="fa-regular fa-copy"></i> Copy Wallet Address</button>
+      <button class="btn-close" id="closeClaimModalBtn">Close</button>
     </div>
   </div>
 
-  <!-- ثبت دستی ولت -->
+  <!-- Manual Wallet Modal -->
   <div class="modal-overlay" id="manualModal">
     <div class="modal-content">
-      <div class="modal-title">ثبت دستی کیف پول</div>
+      <div class="modal-title">Manual Wallet Submission</div>
       <div class="modal-text">
-        اگر در اتصال به TON Connect با اختلال شبکه مواجه شدید، آدرس ولت Tonkeeper خود را اینجا وارد کنید:
+        If you experience network issues with TON Connect, enter your Tonkeeper wallet address here:
       </div>
-      <input type="text" class="wallet-input" id="manualWalletInput" placeholder="آدرس ولت TON شما (EQ... یا UQ...)">
-      <button class="ref-btn btn-share" style="width:100%; margin-bottom: 8px;" id="saveWalletBtn">ذخیره آدرس ولت</button>
-      <button class="btn-close" id="closeManualModalBtn">انصراف</button>
+      <input type="text" class="wallet-input" id="manualWalletInput" placeholder="Your TON Wallet Address (EQ... or UQ...)">
+      <button class="ref-btn btn-share" style="width:100%; margin-bottom: 8px;" id="saveWalletBtn">Save Wallet Address</button>
+      <button class="btn-close" id="closeManualModalBtn">Cancel</button>
     </div>
   </div>
 
-  <!-- پنجره مودال چالش هدیه ریاضی -->
+  <!-- Math Challenge Modal -->
   <div class="modal-overlay" id="mathModal">
     <div class="modal-content">
-      <div class="modal-title">🧠 چالش هوش و هدیه</div>
+      <div class="modal-title">🧠 Brain & Reward Challenge</div>
       <div class="modal-text">
-        برای مشاهده مسئله ریاضی و شروع زمان معکوس (۴۵ ثانیه)، روی دکمه زیر کلیک کنید:
+        Click the button below to view the math equation and start the countdown timer (45 seconds):
       </div>
       
       <button class="btn-start-challenge" id="startMathTimerBtn" style="margin-bottom: 10px;">
-        <i class="fa-solid fa-stopwatch"></i> شروع چالش و نمایش مسئله
+        <i class="fa-solid fa-stopwatch"></i> Start Challenge & Show Equation
       </button>
 
-      <div class="timer-display" id="mathTimer" style="display: none;">زمان باقیمانده: ۴۵ ثانیه</div>
+      <div class="timer-display" id="mathTimer" style="display: none;">Time Remaining: 45s</div>
       
-      <div class="math-expression" id="mathQuestion">🔒 روی شروع کلیک کنید</div>
+      <div class="math-expression" id="mathQuestion">🔒 Click Start to Begin</div>
 
-      <input type="number" class="wallet-input" id="mathAnswerInput" placeholder="پاسخ شما..." style="display: none; text-align: center; font-size: 18px;">
+      <input type="number" class="wallet-input" id="mathAnswerInput" placeholder="Your answer..." style="display: none; text-align: center; font-size: 18px;">
 
-      <button class="ref-btn btn-share" id="submitMathAnswerBtn" style="width:100%; display: none; margin-bottom: 8px;">ثبت و بررسی پاسخ</button>
+      <button class="ref-btn btn-share" id="submitMathAnswerBtn" style="width:100%; display: none; margin-bottom: 8px;">Submit & Verify Answer</button>
       
-      <!-- دکمه پاداش ۲,۰۰۰ توکن در پایین صفحه -->
       <div class="reward-claim-container" id="rewardClaimBox">
         <button class="btn-claim-reward" id="claimMath2kBtn">
-          🎁 دریافت +2,000 $WLF
+          🎁 Claim +2,000 $WLF
         </button>
       </div>
 
-      <button class="btn-close" id="closeMathModalBtn">انصراف</button>
+      <button class="btn-close" id="closeMathModalBtn">Cancel</button>
     </div>
   </div>
 
@@ -565,7 +562,6 @@
     const tg = window.Telegram?.WebApp;
     if (tg) tg.expand();
 
-    // شناسایی دقیق شناسه کاربر از تلگرام
     let userId = 'guest_' + Math.floor(Math.random() * 1000000);
     let userName = 'Player';
 
@@ -583,7 +579,6 @@
     const tapValue = 3;
     const energyRegenRate = 5;
 
-    // بارگذاری اختصاصی موجودی و انرژی مختص همان کاربر (جلوگیری از تداخل روی یک گوشی)
     function getStoredBalance() {
       const val = localStorage.getItem(`${userId}_balance`) || localStorage.getItem('wlf_balance') || '0';
       return parseInt(val, 10);
@@ -628,20 +623,19 @@
       energyEl.textContent = energy;
       energyFillEl.style.width = `${(energy / maxEnergy) * 100}%`;
       
-      // ذخیره‌سازی کاملاً اختصاصی برای این کاربر
       localStorage.setItem(`${userId}_balance`, balance.toString());
       localStorage.setItem(`${userId}_energy`, energy.toString());
       localStorage.setItem(`${userId}_last_time`, Date.now().toString());
     }
 
-    // بررسی سیستم رفرال برای کاربر جدید
+    // Referral System Handler
     const startParam = tg?.initDataUnsafe?.start_param || '';
     if (startParam && startParam.startsWith('ref_')) {
       const referrerId = startParam.replace('ref_', '');
       const hasBeenReferred = localStorage.getItem(`${userId}_referred_by`);
       if (!hasBeenReferred && referrerId !== userId) {
         localStorage.setItem(`${userId}_referred_by`, referrerId);
-        balance += 1000; // پاداش دعوت
+        balance += 1000;
         updateUI();
       }
     }
@@ -690,11 +684,11 @@
 
     copyRefBtn.addEventListener('click', () => {
       navigator.clipboard.writeText(refLink);
-      alert('لینک دعوت کپی شد!');
+      alert('Invite link copied to clipboard!');
     });
 
     shareRefBtn.addEventListener('click', () => {
-      const shareText = `🚀 به بازی $WLF بپیوندید و توکن استخراج کنید! قابل معامله در STON.fi و DeDust.io:`;
+      const shareText = `🚀 Join the $WLF game and mine tokens! Tradable on STON.fi & DeDust.io:`;
       const fullShareUrl = `https://t.me/share/url?url=${encodeURIComponent(refLink)}&text=${encodeURIComponent(shareText)}`;
       if (tg && tg.openTelegramLink) {
         tg.openTelegramLink(fullShareUrl);
@@ -707,7 +701,7 @@
       if (balance >= 10000) {
         claimModal.style.display = 'flex';
       } else {
-        alert('حداقل میزان برداشت ۱۰,۰۰۰ توکن $WLF است.');
+        alert('Minimum withdrawal amount is 10,000 $WLF tokens.');
       }
     });
 
@@ -717,7 +711,7 @@
 
     copyWalletBtn.addEventListener('click', () => {
       navigator.clipboard.writeText('UQByK9oOXxjYegpN28D_Z9fRC9uKx0s0Nc2VXA316gVILS4e');
-      alert('آدرس ولت با موفقیت کپی شد!');
+      alert('Project wallet address copied successfully!');
     });
 
     manualWalletBtn.addEventListener('click', () => {
@@ -732,16 +726,14 @@
       const addr = manualWalletInput.value.trim();
       if (addr.length > 10) {
         localStorage.setItem(`${userId}_wallet`, addr);
-        alert('آدرس ولت شما با موفقیت ثبت شد!');
+        alert('Wallet address saved successfully!');
         manualModal.style.display = 'none';
       } else {
-        alert('لطفا آدرس معتبر وارد کنید.');
+        alert('Please enter a valid wallet address.');
       }
     });
 
-    // ==========================================
-    // منطق چالش هدیه ریاضی (Math Challenge Logic)
-    // ==========================================
+    // Math Challenge Logic
     let mathAnswer = 0;
     let mathTimeLeft = 45;
     let mathTimerInterval = null;
@@ -771,10 +763,10 @@
 
       const remaining = 2 - count;
       if (remaining <= 0) {
-        challengeLimitText.textContent = 'سقف چالش امروزی شما (۲ از ۲) به پایان رسیده است.';
+        challengeLimitText.textContent = 'Daily challenge limit reached (2 of 2 completed).';
         openChallengeBtn.disabled = true;
       } else {
-        challengeLimitText.textContent = `مسئله ریاضی را حل کن و ۲,۰۰۰ توکن جایزه بگیر! (فرصت امروز: ${remaining} از ۲)`;
+        challengeLimitText.textContent = `Solve the math problem and win 2,000 $WLF tokens! (Today's tries: ${remaining} of 2)`;
         openChallengeBtn.disabled = false;
       }
       return remaining;
@@ -801,7 +793,7 @@
         mathModal.style.display = 'flex';
         startMathTimerBtn.style.display = 'block';
         mathTimer.style.display = 'none';
-        mathQuestion.textContent = '🔒 روی شروع کلیک کنید';
+        mathQuestion.textContent = '🔒 Click Start to Begin';
         mathAnswerInput.style.display = 'none';
         submitMathAnswerBtn.style.display = 'none';
         rewardClaimBox.style.display = 'none';
@@ -824,16 +816,16 @@
       mathQuestion.textContent = problemText + ' = ?';
 
       mathTimeLeft = 45;
-      mathTimer.textContent = `زمان باقیمانده: ${mathTimeLeft} ثانیه`;
+      mathTimer.textContent = `Time Remaining: ${mathTimeLeft}s`;
 
       clearInterval(mathTimerInterval);
       mathTimerInterval = setInterval(() => {
         mathTimeLeft--;
-        mathTimer.textContent = `زمان باقیمانده: ${mathTimeLeft} ثانیه`;
+        mathTimer.textContent = `Time Remaining: ${mathTimeLeft}s`;
 
         if (mathTimeLeft <= 0) {
           clearInterval(mathTimerInterval);
-          alert('زمان شما به پایان رسید! دوباره تلاش کنید.');
+          alert('Time is up! Try again.');
           mathModal.style.display = 'none';
         }
       }, 1000);
@@ -842,19 +834,19 @@
     submitMathAnswerBtn.addEventListener('click', () => {
       const userAns = parseInt(mathAnswerInput.value.trim(), 10);
       if (isNaN(userAns)) {
-        alert('لطفا یک عدد وارد کنید.');
+        alert('Please enter a valid number.');
         return;
       }
 
       if (userAns === mathAnswer) {
         clearInterval(mathTimerInterval);
-        mathQuestion.textContent = '✅ پاسخ صحیح است!';
+        mathQuestion.textContent = '✅ Correct Answer!';
         mathAnswerInput.style.display = 'none';
         submitMathAnswerBtn.style.display = 'none';
         mathTimer.style.display = 'none';
         rewardClaimBox.style.display = 'block';
       } else {
-        alert('پاسخ اشتباه بود! دوباره تلاش کنید.');
+        alert('Incorrect answer! Try again.');
       }
     });
 
@@ -865,7 +857,7 @@
       let count = parseInt(localStorage.getItem(`${userId}_math_count`) || '0', 10);
       localStorage.setItem(`${userId}_math_count`, (count + 1).toString());
 
-      alert('مبلغ ۲,۰۰۰ توکن $WLF به موجودی شما اضافه شد! 🎉');
+      alert('Successfully claimed 2,000 $WLF tokens! 🎉');
       rewardClaimBox.style.display = 'none';
       mathModal.style.display = 'none';
       checkChallengeLimits();
