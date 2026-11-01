@@ -55,7 +55,7 @@
 
         p { font-size: 13px; opacity: 0.85; margin-top: 2px; margin-bottom: 12px; }
 
-        .price-tag {
+        .price-display {
             font-size: 26px;
             font-weight: 800;
             margin: 10px 0 15px 0;
@@ -123,23 +123,23 @@
 
     <div class="card-wrapper">
         <div class="card" id="app">
-            <h2>🪙 WLF Token Checkout</h2>
-            <p id="game-title">Secure & Instant Game Unlock</p>
+            <h2>🪙 Unlock Game with $WLF</h2>
+            <p id="game-title">Instant & Secure Access Powered by $WLF</p>
             
             <div class="price-display" id="price-display">499 WLF Tokens</div>
             
             <div id="ton-connect-button"></div>
 
             <div id="error-container" class="info-box">
-                <span class="info-title">💡 Insufficient WLF Balance!</span>
-                You need <span id="cost-text">499</span> WLF tokens in your connected wallet.<br><br>
-                ✨ <b>Exclusive Ways to Get WLF:</b>
-                <button class="btn btn-dedust" style="margin-top:10px;" onclick="window.open('https://dedust.io/swap/EQAUEpGOGqbJy-UIxQ6qblhqAROxgDuiMeB17zImB90n6st0/DUST', '_blank')">🛒 Buy Instantly on DeDust</button>
-                <button class="btn btn-secondary" style="margin-top:8px;" onclick="showBotNotice()">⛏️ Free Mining & Rewards</button>
+                <span class="info-title">💡 Pay with $WLF & Save Stars!</span>
+                You need <span id="cost-text">499</span> $WLF tokens in your connected TON wallet.<br><br>
+                ✨ <b>Don't have enough $WLF yet?</b>
+                <button class="btn btn-dedust" style="margin-top:10px;" onclick="window.open('https://dedust.io/swap/EQAUEpGOGqbJy-UIxQ6qblhqAROxgDuiMeB17zImB90n6st0/DUST', '_blank')">🛒 Buy $WLF on DeDust.io</button>
+                <button class="btn btn-secondary" style="margin-top:8px;" onclick="showBotNotice()">⛏️ Mine $WLF for Free</button>
             </div>
 
             <div id="action-section" style="display: none;">
-                <button class="btn" onclick="sendWlfPayment()">⚡ Pay <span id="pay-cost">499</span> WLF & Unlock</button>
+                <button class="btn" onclick="sendWlfPayment()">⚡ Pay <span id="pay-cost">499</span> WLF & Unlock Now</button>
             </div>
         </div>
     </div>
@@ -156,7 +156,7 @@
         document.getElementById('cost-text').innerText = cost;
         document.getElementById('pay-cost').innerText = cost;
 
-        // راه‌اندازی TonConnect UI
+        // راه‌اندازی TonConnect UI (بدون تغییر کد)
         const tonConnectUI = new TON_CONNECT_UI.TonConnectUI({
             manifestUrl: 'https://wlf-p1zk.onrender.com/tonconnect-manifest.json',
             buttonRootId: 'ton-connect-button'
@@ -172,10 +172,9 @@
             }
         });
 
-        // تابع ارسال تراکنش به آدرس کیف پول شخصی شما
+        // تابع ارسال تراکنش (بدون تغییر منطق)
         async function sendWlfPayment() {
             try {
-                // آدرس کیف پول شخصی شما (اصلاح شد)
                 const recipientAddress = "UQByK9oOXxjYegpN28D_Z9fRC9uKx0s0Nc2VXA316gVILS4e"; 
                 
                 const transaction = {
@@ -183,7 +182,7 @@
                     messages: [
                         {
                             address: recipientAddress,
-                            amount: "50000000" // کارمزد و مبلغ تستی شبکه
+                            amount: "50000000"
                         }
                     ]
                 };
@@ -197,7 +196,7 @@
         }
 
         function showBotNotice() {
-            alert("✨ This option is already available right inside the main bot menu! Simply close this window to check it out.");
+            alert("✨ Free Mining is available inside the main bot menu! Close this screen to explore.");
         }
     </script>
 </body>
