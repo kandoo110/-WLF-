@@ -20,62 +20,69 @@
             text-align: center;
         }
         .card {
-            background: rgba(255, 255, 255, 0.05);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            border-radius: 20px;
+            background: linear-gradient(145deg, rgba(30, 39, 46, 0.9), rgba(18, 22, 25, 0.95));
+            border: 1px solid rgba(243, 186, 47, 0.2);
+            border-radius: 24px;
             padding: 25px;
             width: 100%;
             max-width: 380px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
-            backdrop-filter: blur(10px);
+            box-shadow: 0 15px 35px rgba(0,0,0,0.6), inset 0 1px 0 rgba(255,255,255,0.1);
+            backdrop-filter: blur(12px);
         }
-        h2 { color: #f3ba2f; margin-bottom: 10px; }
-        p { font-size: 14px; opacity: 0.8; line-height: 1.5; }
+        h2 { color: #f3ba2f; margin-bottom: 8px; font-size: 22px; }
+        p { font-size: 14px; opacity: 0.85; line-height: 1.5; }
         .price-tag {
-            font-size: 22px;
-            font-weight: bold;
+            font-size: 24px;
+            font-weight: 800;
             margin: 15px 0;
-            color: #4cd137;
+            color: #2ed573;
+            text-shadow: 0 0 15px rgba(46, 213, 115, 0.3);
         }
         .btn {
             background: linear-gradient(135deg, #f3ba2f, #e1b12c);
             color: #121619;
             border: none;
-            padding: 12px 20px;
+            padding: 13px 20px;
             font-size: 15px;
-            font-weight: bold;
-            border-radius: 12px;
+            font-weight: 700;
+            border-radius: 14px;
             width: 100%;
             cursor: pointer;
             margin-top: 12px;
-            transition: 0.2s;
-            text-decoration: none;
-            display: inline-block;
-            box-sizing: border-box;
+            transition: all 0.2s ease;
+            box-shadow: 0 4px 15px rgba(243, 186, 47, 0.3);
         }
         .btn:active { transform: scale(0.97); }
-        .btn-secondary {
-            background: rgba(255, 255, 255, 0.1);
+        .btn-dedust {
+            background: linear-gradient(135deg, #0098ea, #0077b5);
             color: #ffffff;
-            border: 1px solid rgba(255, 255, 255, 0.2);
+            box-shadow: 0 4px 15px rgba(0, 152, 234, 0.3);
         }
-        .error-box {
-            background: rgba(231, 76, 60, 0.15);
-            border: 1px solid #e74c3c;
-            color: #ff6b6b;
-            padding: 12px;
-            border-radius: 12px;
+        .btn-secondary {
+            background: rgba(255, 255, 255, 0.08);
+            color: #ffffff;
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            box-shadow: none;
+        }
+        .info-box {
+            background: linear-gradient(135deg, rgba(0, 152, 234, 0.1), rgba(243, 186, 47, 0.05));
+            border: 1px solid rgba(0, 152, 234, 0.3);
+            color: #dcdde1;
+            padding: 14px;
+            border-radius: 16px;
             font-size: 13px;
             margin-top: 15px;
             text-align: left;
+            line-height: 1.6;
         }
+        .info-box b { color: #f3ba2f; }
     </style>
 </head>
 <body>
 
     <div class="card" id="app">
         <h2>🪙 WLF Token Checkout</h2>
-        <p id="game-title">Unlocking game access securely</p>
+        <p id="game-title">Secure & Instant Game Unlock</p>
         
         <div class="price-tag" id="price-display">499 WLF</div>
         
@@ -87,7 +94,7 @@
             <button class="btn" onclick="processPayment()">⚡ Pay 499 WLF & Unlock</button>
         </div>
 
-        <div id="error-container" class="error-box" style="display: none;"></div>
+        <div id="error-container" class="info-box" style="display: none;"></div>
     </div>
 
     <script>
@@ -104,22 +111,22 @@
             setTimeout(() => {
                 document.getElementById('wallet-section').style.display = 'none';
                 document.getElementById('action-section').style.display = 'block';
-            }, 400);
+            }, 300);
         }
 
         function processPayment() {
-            // موجودی تستی کاربر برای نمایش بخش پیشنهادها
+            // موجودی تستی برای نمایش بخش پیشنهادهای جذاب
             let userBalance = 10; 
 
             if (userBalance < parseInt(cost)) {
                 const errBox = document.getElementById('error-container');
                 errBox.style.display = 'block';
                 errBox.innerHTML = `
-                    ❌ <b>Insufficient Balance!</b><br>
-                    You need ${cost} WLF tokens, but your balance is ${userBalance} WLF.<br><br>
-                    <b>Special Options For You:</b>
-                    <button class="btn" style="background:#0088cc; color:white; margin-top:8px;" onclick="window.open('https://dedust.io/swap/EQAUEpGOGqbJy-UIxQ6qblhqAROxgDuiMeB17zImB90n6st0/DUST', '_blank')">🛒 Buy Instantly on DeDust</button>
-                    <button class="btn btn-secondary" style="margin-top:8px;" onclick="openMiningBot()">⛏️ Mine Free WLF in Bot</button>
+                    💡 <b>Boost Your WLF Balance!</b><br>
+                    You need ${cost} WLF, but your balance is ${userBalance} WLF.<br><br>
+                    ✨ <b>Exclusive Ways to Get WLF:</b>
+                    <button class="btn btn-dedust" style="margin-top:10px;" onclick="window.open('https://dedust.io/swap/EQAUEpGOGqbJy-UIxQ6qblhqAROxgDuiMeB17zImB90n6st0/DUST', '_blank')">🛒 Buy Instantly on DeDust</button>
+                    <button class="btn btn-secondary" style="margin-top:8px;" onclick="showBotNotice()">⛏️ Free Mining & Rewards</button>
                 `;
                 document.getElementById('action-section').style.display = 'none';
             } else {
@@ -127,13 +134,8 @@
             }
         }
 
-        function openMiningBot() {
-            // استفاده از متد استاندارد تلگرام برای باز کردن ربات بدون خطای WebView
-            if (tg && tg.openTelegramLink) {
-                tg.openTelegramLink('https://t.me/zzgames_bot');
-            } else {
-                window.location.href = 'https://t.me/zzgames_bot';
-            }
+        function showBotNotice() {
+            alert("✨ This option is already available right inside the main bot menu! Simply close this window to check it out.");
         }
     </script>
 </body>
