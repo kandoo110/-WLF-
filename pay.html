@@ -115,15 +115,15 @@
         }
 
         function processPayment() {
-            // موجودی تستی برای نمایش بخش پیشنهادهای جذاب
-            let userBalance = 10; 
+            // موجودی واقعی کاربر (صفر تا زمانی که اتصال واقعی بلاکچین و ولت برقرار شود)
+            let userBalance = 0; 
 
             if (userBalance < parseInt(cost)) {
                 const errBox = document.getElementById('error-container');
                 errBox.style.display = 'block';
                 errBox.innerHTML = `
                     💡 <b>Boost Your WLF Balance!</b><br>
-                    You need ${cost} WLF, but your balance is ${userBalance} WLF.<br><br>
+                    You need ${cost} WLF, but your wallet balance is 0 WLF.<br><br>
                     ✨ <b>Exclusive Ways to Get WLF:</b>
                     <button class="btn btn-dedust" style="margin-top:10px;" onclick="window.open('https://dedust.io/swap/EQAUEpGOGqbJy-UIxQ6qblhqAROxgDuiMeB17zImB90n6st0/DUST', '_blank')">🛒 Buy Instantly on DeDust</button>
                     <button class="btn btn-secondary" style="margin-top:8px;" onclick="showBotNotice()">⛏️ Free Mining & Rewards</button>
