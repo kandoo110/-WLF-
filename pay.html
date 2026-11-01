@@ -22,7 +22,6 @@
             text-align: center;
         }
 
-        /* فریم اصلی با گوشه‌های کاملاً گرد و نرم و ترکیب رنگی زرد و آبی پرچمی */
         .card {
             background: linear-gradient(135deg, rgba(0, 87, 183, 0.25) 0%, rgba(15, 20, 28, 0.95) 50%, rgba(255, 215, 0, 0.15) 100%);
             border-radius: 28px;
@@ -33,10 +32,9 @@
             position: relative;
         }
 
-        /* کادر بیرونی برای ایجاد حاشیه گرادیانتِ زرد و آبی با گوشه‌های کاملاً گرد */
         .card-wrapper {
             background: linear-gradient(135deg, #0057b7, #ffd700);
-            padding: 2px; /* ضخامت حاشیه فریم */
+            padding: 2px;
             border-radius: 30px;
             width: 100%;
             max-width: 384px;
@@ -128,13 +126,10 @@
             <h2>🪙 WLF Token Checkout</h2>
             <p id="game-title">Secure & Instant Game Unlock</p>
             
-            <!-- قیمت بازی -->
             <div class="price-display" id="price-display">499 WLF Tokens</div>
             
-            <!-- گزینه اتصال ولت (همان اول دیده می‌شود) -->
             <div id="ton-connect-button"></div>
 
-            <!-- پیام موجودی و تمامی گزینه‌ها در همان ابتدا -->
             <div id="error-container" class="info-box">
                 <span class="info-title">💡 Insufficient WLF Balance!</span>
                 You need <span id="cost-text">499</span> WLF tokens in your connected wallet.<br><br>
@@ -143,9 +138,8 @@
                 <button class="btn btn-secondary" style="margin-top:8px;" onclick="showBotNotice()">⛏️ Free Mining & Rewards</button>
             </div>
 
-            <!-- دکمه پرداخت نهایی (پس از دارا بودن موجودی) -->
             <div id="action-section" style="display: none;">
-                <button class="btn" onclick="sendWlfPayment()">⚡ Pay 499 WLF & Unlock</button>
+                <button class="btn" onclick="sendWlfPayment()">⚡ Pay <span id="pay-cost">499</span> WLF & Unlock</button>
             </div>
         </div>
     </div>
@@ -156,10 +150,22 @@
 
         const urlParams = new URLSearchParams(window.location.search);
         const gameKey = urlParams.get('game') || 'game';
-        const cost = urlParams.get('cost') || '499';
+        
+        // تنظیم قیمت‌ها بر اساس نوع بازی یا پارامتر ارسالی از ربات
+        let cost = urlParams.get('cost');
+
+        // اگر از ربات مقدار خاصی ارسال نشده بود، بر اساس نوع بازی تنظیم می‌شود
+        if (!cost) {
+            if (gameKey === 'dez' || gameKey === 'castle') {
+                cost = '399'; // بازی دژ (مراحل آخر): 15 استارز معادل 399 WLF
+            } else {
+                cost = '499'; // پیش‌فرض (معادل 30 استارز)
+            }
+        }
 
         document.getElementById('price-display').innerText = cost + " WLF Tokens";
         document.getElementById('cost-text').innerText = cost;
+        document.getElementById('pay-cost').innerText = cost;
 
         // راه‌اندازی TonConnect UI
         const tonConnectUI = new TON_CONNECT_UI.TonConnectUI({
@@ -167,7 +173,6 @@
             buttonRootId: 'ton-connect-button'
         });
 
-        // مدیریت وضعیت اتصال ولت
         tonConnectUI.onStatusChange(wallet => {
             if (wallet) {
                 document.getElementById('action-section').style.display = 'block';
@@ -178,7 +183,6 @@
             }
         });
 
-        // تابع ارسال تراکنش کسر توکن
         async function sendWlfPayment() {
             const recipientAddress = "EQAUEpGOGqbJy-UIxQ6qblhqAROxgDuiMeB17zImB90n6st0"; 
             
@@ -187,7 +191,7 @@
                 messages: [
                     {
                         address: recipientAddress,
-                        amount: "50000000" // کارمزد گاز شبکه TON
+                        amount: "50000000"
                     }
                 ]
             };
@@ -201,7 +205,6 @@
             }
         }
 
-        // پیام راهنمای بخش استخراج در منوی اصلی
         function showBotNotice() {
             alert("✨ This option is already available right inside the main bot menu! Simply close this window to check it out.");
         }
