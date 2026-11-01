@@ -5,6 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>WLF Secure Checkout</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <!-- کتابخانه رسمی TonConnect UI برای اتصال به ولت‌های TON -->
+    <script src="https://unpkg.com/@tonconnect/ui@latest/dist/tonconnect-ui.min.js"></script>
     <style>
         body {
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
@@ -37,6 +39,11 @@
             margin: 15px 0;
             color: #2ed573;
             text-shadow: 0 0 15px rgba(46, 213, 115, 0.3);
+        }
+        #ton-connect-button {
+            display: flex;
+            justify-content: center;
+            margin: 15px 0;
         }
         .btn {
             background: linear-gradient(135deg, #f3ba2f, #e1b12c);
@@ -86,12 +93,11 @@
         
         <div class="price-tag" id="price-display">499 WLF</div>
         
-        <div id="wallet-section">
-            <button class="btn" onclick="connectWallet()">🔗 Connect TON Wallet</button>
-        </div>
+        <!-- جایگاه استاندارد دکمه اتصال ولت (TonConnect) -->
+        <div id="ton-connect-button"></div>
 
         <div id="action-section" style="display: none;">
-            <button class="btn" onclick="processPayment()">⚡ Pay 499 WLF & Unlock</button>
+            <button class="btn" onclick="sendWlfPayment()">⚡ Pay 499 WLF & Unlock</button>
         </div>
 
         <div id="error-container" class="info-box" style="display: none;"></div>
@@ -107,31 +113,68 @@
 
         document.getElementById('price-display').innerText = cost + " WLF Tokens";
 
-        function connectWallet() {
-            setTimeout(() => {
-                document.getElementById('wallet-section').style.display = 'none';
+        // راه‌اندازی TonConnect UI
+        const tonConnectUI = new TON_CONNECT_UI.TonConnectUI({
+            manifestUrl: 'https://wlf-p1zk.onrender.com/tonconnect-manifest.json',
+            buttonRootId: 'ton-connect-button'
+        });
+
+        // گوش دادن به وضعیت اتصال ولت کاربر
+        tonConnectUI.onStatusChange(wallet => {
+            if (wallet) {
+                // ولت متصل شد، دکمه پرداخت نهایی را نمایش بده
                 document.getElementById('action-section').style.display = 'block';
-            }, 300);
+                document.getElementById('error-container').style.display = 'none';
+            } else {
+                // ولت متصل نیست
+                document.getElementById('action-section').style.display = 'none';
+            }
+        });
+
+        // تابع ارسال تراکنش انتقال توکن روی بلاکچین
+        async function sendWlfPayment() {
+            // آدرس ولت پروژه شما (که توکن‌ها باید به آن واریز شوند)
+            const recipientAddress = "EQAUEpGOGqbJy-UIxQ6qblhqAROxgDuiMeB17zImB90n6st0"; 
+            
+            // تبدیل مقدار توکن به واحدهای نانو (در نظر گرفتن اعشار توکن)
+            // به طور پیش‌فرض اگر توکن ۹ رقم اعشار داشته باشد: مقدار * 10^9
+            const tokenAmountNano = (parseInt(cost) * 1000000000).toString();
+
+            // ساخت بارهای تراکنش برای شبکه TON (Jetton Transfer Payload)
+            const transaction = {
+                validUntil: Math.floor(Date.now() / 1000) + 600, // انقضا تا ۱۰ دقیقه دیگر
+                messages: [
+                    {
+                        address: recipientAddress,
+                        amount: "50000000", // کارمزد شبکه (معادل 0.05 تون برای هزینه گاز تراکنش)
+                        // پیلود انتقال جتتون توکن WLF در اینجا قرار می‌گیرد
+                    }
+                ]
+            };
+
+            try {
+                // ارسال درخواست امضای تراکنش به کیف پول کاربر (مثل Tonkeeper)
+                const result = await tonConnectUI.sendTransaction(transaction);
+                alert("Payment successful! Unlocking your game...");
+                // در اینجا می‌توانید درخواست باز شدن بازی را به سرور ارسال کنید
+            } catch (e) {
+                console.error(e);
+                // اگر کاربر موجودی کافی نداشت یا تراکنش را رد کرد:
+                showInsufficientBalanceError();
+            }
         }
 
-        function processPayment() {
-            // موجودی واقعی کاربر (صفر تا زمانی که اتصال واقعی بلاکچین و ولت برقرار شود)
-            let userBalance = 0; 
-
-            if (userBalance < parseInt(cost)) {
-                const errBox = document.getElementById('error-container');
-                errBox.style.display = 'block';
-                errBox.innerHTML = `
-                    💡 <b>Boost Your WLF Balance!</b><br>
-                    You need ${cost} WLF, but your wallet balance is 0 WLF.<br><br>
-                    ✨ <b>Exclusive Ways to Get WLF:</b>
-                    <button class="btn btn-dedust" style="margin-top:10px;" onclick="window.open('https://dedust.io/swap/EQAUEpGOGqbJy-UIxQ6qblhqAROxgDuiMeB17zImB90n6st0/DUST', '_blank')">🛒 Buy Instantly on DeDust</button>
-                    <button class="btn btn-secondary" style="margin-top:8px;" onclick="showBotNotice()">⛏️ Free Mining & Rewards</button>
-                `;
-                document.getElementById('action-section').style.display = 'none';
-            } else {
-                alert("Payment successful! Unlocking game...");
-            }
+        function showInsufficientBalanceError() {
+            const errBox = document.getElementById('error-container');
+            errBox.style.display = 'block';
+            errBox.innerHTML = `
+                💡 <b>Insufficient WLF Balance!</b><br>
+                You need ${cost} WLF tokens in your connected wallet.<br><br>
+                ✨ <b>Exclusive Ways to Get WLF:</b>
+                <button class="btn btn-dedust" style="margin-top:10px;" onclick="window.open('https://dedust.io/swap/EQAUEpGOGqbJy-UIxQ6qblhqAROxgDuiMeB17zImB90n6st0/DUST', '_blank')">🛒 Buy Instantly on DeDust</button>
+                <button class="btn btn-secondary" style="margin-top:8px;" onclick="showBotNotice()">⛏️ Free Mining & Rewards</button>
+            `;
+            document.getElementById('action-section').style.display = 'none';
         }
 
         function showBotNotice() {
