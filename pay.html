@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="en" dir="ltr">
 <head>
@@ -10,7 +11,7 @@
     <style>
         body {
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
-            background-color: var(--tg-theme-bg-color, #0e1621);
+            background-color: var(--tg-theme-bg-color, #0b0e14);
             color: var(--tg-theme-text-color, #ffffff);
             margin: 0;
             padding: 15px;
@@ -21,52 +22,68 @@
             min-height: 90vh;
             text-align: center;
         }
-        /* فریم شکیل با ترکیب رنگ‌های آبی و زرد (پرچمی) و افکت نئونی */
+
+        /* فریم جذاب با ترکیب ظریف و در هم رفته زرد و آبی (الهام از رنگ‌های پرچم) */
         .card {
-            background: linear-gradient(145deg, rgba(13, 37, 63, 0.95), rgba(18, 22, 25, 0.98));
-            border: 2px solid #0057b7; /* حاشیه آبی پرچم */
+            background: linear-gradient(135deg, rgba(0, 87, 183, 0.25) 0%, rgba(15, 20, 28, 0.95) 50%, rgba(255, 215, 0, 0.15) 100%);
+            border: 2px solid transparent;
+            border-image: linear-gradient(135deg, #0057b7, #ffd700) 1;
             border-radius: 24px;
             padding: 24px;
             width: 100%;
             max-width: 380px;
-            box-shadow: 0 0 25px rgba(0, 87, 183, 0.35), inset 0 1px 0 rgba(255, 255, 255, 0.15);
-            backdrop-filter: blur(12px);
+            box-shadow: 0 10px 30px rgba(0, 87, 183, 0.3), 0 0 20px rgba(255, 215, 0, 0.2);
+            backdrop-filter: blur(15px);
+            box-sizing: border-box;
+            background-clip: padding-box;
             position: relative;
         }
-        /* نوار تزئینی زرد رنگ در بالای فریم برای تکمیل ترکیب زرد و آبی */
-        .card::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 20%;
-            right: 20%;
-            height: 4px;
-            background: #ffd700; /* زرد طلایی پرچم */
-            border-radius: 0 0 4px 4px;
-            box-shadow: 0 0 10px #ffd700;
+
+        /* حاشیه گرد نئونی زرد و آبی */
+        .card-wrapper {
+            background: linear-gradient(135deg, #0057b7, #ffd700);
+            padding: 2px;
+            border-radius: 26px;
+            width: 100%;
+            max-width: 384px;
+            box-shadow: 0 12px 35px rgba(0, 87, 183, 0.4), 0 0 25px rgba(255, 215, 0, 0.25);
         }
-        h2 { color: #ffd700; margin-bottom: 6px; font-size: 22px; text-shadow: 0 0 10px rgba(255, 215, 0, 0.3); }
-        p { font-size: 13px; opacity: 0.85; line-height: 1.4; }
+
+        h2 { 
+            color: #ffd700; 
+            margin-bottom: 4px; 
+            font-size: 22px; 
+            text-shadow: 0 2px 10px rgba(255, 215, 0, 0.3);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        p { font-size: 13px; opacity: 0.85; margin-top: 2px; margin-bottom: 12px; }
+
         .price-tag {
-            font-size: 24px;
+            font-size: 26px;
             font-weight: 800;
-            margin: 12px 0;
-            color: #ffd700;
-            text-shadow: 0 0 12px rgba(255, 215, 0, 0.4);
+            margin: 10px 0 15px 0;
+            color: #2ed573;
+            text-shadow: 0 0 15px rgba(46, 213, 115, 0.4);
         }
+
         #ton-connect-button {
             display: flex;
             justify-content: center;
-            margin: 12px 0 8px 0;
+            margin: 12px 0;
         }
+
         .btn {
             background: linear-gradient(135deg, #ffd700, #e1b12c);
-            color: #0e1621;
+            color: #0c1017;
             border: none;
-            padding: 12px 18px;
-            font-size: 14px;
+            padding: 13px 20px;
+            font-size: 15px;
             font-weight: 700;
-            border-radius: 12px;
+            border-radius: 14px;
             width: 100%;
             cursor: pointer;
             margin-top: 10px;
@@ -76,57 +93,65 @@
             display: inline-block;
             box-sizing: border-box;
         }
+
         .btn:active { transform: scale(0.97); }
+
         .btn-dedust {
-            background: linear-gradient(135deg, #0057b7, #0088cc); /* آبی خوش‌رنگ صرافی و پرچم */
+            background: linear-gradient(135deg, #0088cc, #0057b7);
             color: #ffffff;
-            box-shadow: 0 4px 15px rgba(0, 87, 183, 0.4);
+            box-shadow: 0 4px 15px rgba(0, 136, 204, 0.4);
             border: 1px solid rgba(255, 215, 0, 0.3);
         }
+
         .btn-secondary {
             background: rgba(255, 255, 255, 0.08);
             color: #ffffff;
             border: 1px solid rgba(255, 215, 0, 0.25);
             box-shadow: none;
         }
+
         .info-box {
-            background: linear-gradient(135deg, rgba(0, 87, 183, 0.15), rgba(255, 215, 0, 0.05));
+            background: linear-gradient(135deg, rgba(0, 87, 183, 0.2), rgba(255, 215, 0, 0.08));
             border: 1px solid rgba(255, 215, 0, 0.35);
-            color: #e0e0e0;
-            padding: 12px;
-            border-radius: 14px;
-            font-size: 12px;
-            margin-top: 10px;
+            color: #e0e6ed;
+            padding: 14px;
+            border-radius: 16px;
+            font-size: 13px;
+            margin-top: 15px;
             text-align: left;
             line-height: 1.5;
         }
+
         .info-box b { color: #ffd700; }
+        .info-title { color: #ffd700; font-weight: bold; margin-bottom: 4px; display: block; }
     </style>
 </head>
 <body>
 
-    <div class="card" id="app">
-        <h2>🪙 WLF Token Checkout</h2>
-        <p id="game-title">Secure & Instant Game Unlock</p>
-        
-        <!-- قیمت بازی -->
-        <div class="price-tag" id="price-display">499 WLF</div>
-        
-        <!-- دکمه اتصال ولت در همان نمای اول -->
-        <div id="ton-connect-button"></div>
+    <div class="card-wrapper">
+        <div class="card" id="app">
+            <h2>🪙 WLF Token Checkout</h2>
+            <p id="game-title">Secure & Instant Game Unlock</p>
+            
+            <!-- قیمت بازی -->
+            <div class="price-tag" id="price-display">499 WLF Tokens</div>
+            
+            <!-- گزینه اتصال ولت (همان اول دیده می‌شود) -->
+            <div id="ton-connect-button"></div>
 
-        <!-- کادر یکپارچه پیام موجودی و گزینه‌ها داخل فریم آبی و زرد -->
-        <div id="error-container" class="info-box">
-            💡 <b>Boost Your WLF Balance!</b><br>
-            You need <span id="cost-text">499</span> WLF, but your wallet balance is 0 WLF.<br><br>
-            ✨ <b>Exclusive Ways to Get WLF:</b>
-            <button class="btn btn-dedust" style="margin-top:8px;" onclick="window.open('https://dedust.io/swap/EQAUEpGOGqbJy-UIxQ6qblhqAROxgDuiMeB17zImB90n6st0/DUST', '_blank')">🛒 Buy Instantly on DeDust</button>
-            <button class="btn btn-secondary" style="margin-top:6px;" onclick="showBotNotice()">⛏️ Free Mining & Rewards</button>
-        </div>
+            <!-- پیام موجودی و تمامی گزینه‌ها (خرید از DeDust و استخراج) در همان ابتدا -->
+            <div id="error-container" class="info-box">
+                <span class="info-title">💡 Insufficient WLF Balance!</span>
+                You need <span id="cost-text">499</span> WLF tokens in your connected wallet.<br><br>
+                ✨ <b>Exclusive Ways to Get WLF:</b>
+                <button class="btn btn-dedust" style="margin-top:10px;" onclick="window.open('https://dedust.io/swap/EQAUEpGOGqbJy-UIxQ6qblhqAROxgDuiMeB17zImB90n6st0/DUST', '_blank')">🛒 Buy Instantly on DeDust</button>
+                <button class="btn btn-secondary" style="margin-top:8px;" onclick="showBotNotice()">⛏️ Free Mining & Rewards</button>
+            </div>
 
-        <!-- دکمه پرداخت نهایی -->
-        <div id="action-section" style="display: none;">
-            <button class="btn" onclick="sendWlfPayment()">⚡ Pay 499 WLF & Unlock</button>
+            <!-- دکمه پرداخت نهایی (پس از دارا بودن موجودی) -->
+            <div id="action-section" style="display: none;">
+                <button class="btn" onclick="sendWlfPayment()">⚡ Pay 499 WLF & Unlock</button>
+            </div>
         </div>
     </div>
 
@@ -141,7 +166,7 @@
         document.getElementById('price-display').innerText = cost + " WLF Tokens";
         document.getElementById('cost-text').innerText = cost;
 
-        // تنظیمات TonConnect UI
+        // راه‌اندازی TonConnect UI
         const tonConnectUI = new TON_CONNECT_UI.TonConnectUI({
             manifestUrl: 'https://wlf-p1zk.onrender.com/tonconnect-manifest.json',
             buttonRootId: 'ton-connect-button'
@@ -150,6 +175,7 @@
         // مدیریت وضعیت اتصال ولت
         tonConnectUI.onStatusChange(wallet => {
             if (wallet) {
+                // اگر ولت متصل شد و شارژ بود دکمه پرداخت روشن می‌شود
                 document.getElementById('action-section').style.display = 'block';
                 document.getElementById('error-container').style.display = 'none';
             } else {
@@ -158,7 +184,7 @@
             }
         });
 
-        // تابع ارسال تراکنش
+        // تابع ارسال تراکنش کسر توکن
         async function sendWlfPayment() {
             const recipientAddress = "EQAUEpGOGqbJy-UIxQ6qblhqAROxgDuiMeB17zImB90n6st0"; 
             
@@ -167,7 +193,7 @@
                 messages: [
                     {
                         address: recipientAddress,
-                        amount: "50000000" // هزینه گاز شبکه
+                        amount: "50000000" // کارمزد گاز شبکه TON
                     }
                 ]
             };
@@ -181,6 +207,7 @@
             }
         }
 
+        // پیام راهنمای بخش استخراج در منوی اصلی
         function showBotNotice() {
             alert("✨ This option is already available right inside the main bot menu! Simply close this window to check it out.");
         }
