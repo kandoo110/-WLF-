@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="en" dir="ltr">
 <head>
@@ -23,30 +22,26 @@
             text-align: center;
         }
 
-        /* فریم جذاب با ترکیب ظریف و در هم رفته زرد و آبی (الهام از رنگ‌های پرچم) */
+        /* فریم اصلی با گوشه‌های کاملاً گرد و نرم و ترکیب رنگی زرد و آبی پرچمی */
         .card {
             background: linear-gradient(135deg, rgba(0, 87, 183, 0.25) 0%, rgba(15, 20, 28, 0.95) 50%, rgba(255, 215, 0, 0.15) 100%);
-            border: 2px solid transparent;
-            border-image: linear-gradient(135deg, #0057b7, #ffd700) 1;
-            border-radius: 24px;
+            border-radius: 28px;
             padding: 24px;
             width: 100%;
             max-width: 380px;
-            box-shadow: 0 10px 30px rgba(0, 87, 183, 0.3), 0 0 20px rgba(255, 215, 0, 0.2);
-            backdrop-filter: blur(15px);
             box-sizing: border-box;
-            background-clip: padding-box;
             position: relative;
         }
 
-        /* حاشیه گرد نئونی زرد و آبی */
+        /* کادر بیرونی برای ایجاد حاشیه گرادیانتِ زرد و آبی با گوشه‌های کاملاً گرد */
         .card-wrapper {
             background: linear-gradient(135deg, #0057b7, #ffd700);
-            padding: 2px;
-            border-radius: 26px;
+            padding: 2px; /* ضخامت حاشیه فریم */
+            border-radius: 30px;
             width: 100%;
             max-width: 384px;
             box-shadow: 0 12px 35px rgba(0, 87, 183, 0.4), 0 0 25px rgba(255, 215, 0, 0.25);
+            box-sizing: border-box;
         }
 
         h2 { 
@@ -83,7 +78,7 @@
             padding: 13px 20px;
             font-size: 15px;
             font-weight: 700;
-            border-radius: 14px;
+            border-radius: 16px;
             width: 100%;
             cursor: pointer;
             margin-top: 10px;
@@ -115,7 +110,7 @@
             border: 1px solid rgba(255, 215, 0, 0.35);
             color: #e0e6ed;
             padding: 14px;
-            border-radius: 16px;
+            border-radius: 18px;
             font-size: 13px;
             margin-top: 15px;
             text-align: left;
@@ -134,12 +129,12 @@
             <p id="game-title">Secure & Instant Game Unlock</p>
             
             <!-- قیمت بازی -->
-            <div class="price-tag" id="price-display">499 WLF Tokens</div>
+            <div class="price-display" id="price-display">499 WLF Tokens</div>
             
             <!-- گزینه اتصال ولت (همان اول دیده می‌شود) -->
             <div id="ton-connect-button"></div>
 
-            <!-- پیام موجودی و تمامی گزینه‌ها (خرید از DeDust و استخراج) در همان ابتدا -->
+            <!-- پیام موجودی و تمامی گزینه‌ها در همان ابتدا -->
             <div id="error-container" class="info-box">
                 <span class="info-title">💡 Insufficient WLF Balance!</span>
                 You need <span id="cost-text">499</span> WLF tokens in your connected wallet.<br><br>
@@ -175,7 +170,6 @@
         // مدیریت وضعیت اتصال ولت
         tonConnectUI.onStatusChange(wallet => {
             if (wallet) {
-                // اگر ولت متصل شد و شارژ بود دکمه پرداخت روشن می‌شود
                 document.getElementById('action-section').style.display = 'block';
                 document.getElementById('error-container').style.display = 'none';
             } else {
