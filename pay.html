@@ -49,6 +49,9 @@
             cursor: pointer;
             margin-top: 12px;
             transition: 0.2s;
+            text-decoration: none;
+            display: inline-block;
+            box-sizing: border-box;
         }
         .btn:active { transform: scale(0.97); }
         .btn-secondary {
@@ -88,6 +91,9 @@
     </div>
 
     <script>
+        const tg = window.Telegram.WebApp;
+        tg.expand();
+
         const urlParams = new URLSearchParams(window.location.search);
         const gameKey = urlParams.get('game') || 'game';
         const cost = urlParams.get('cost') || '499';
@@ -98,26 +104,35 @@
             setTimeout(() => {
                 document.getElementById('wallet-section').style.display = 'none';
                 document.getElementById('action-section').style.display = 'block';
-            }, 500);
+            }, 400);
         }
 
         function processPayment() {
-            // شبیه‌سازی موجودی کاربر برای نمایش حالت کمبود موجودی و پیشنهادها
+            // موجودی تستی کاربر برای نمایش بخش پیشنهادها
             let userBalance = 10; 
 
             if (userBalance < parseInt(cost)) {
                 const errBox = document.getElementById('error-container');
                 errBox.style.display = 'block';
                 errBox.innerHTML = `
-                    ❌ <b>موجودی کافی نیست!</b><br>
-                    برای این بازی به ${cost} توکن WLF نیاز دارید اما موجودی شما ${userBalance} توکن است.<br><br>
-                    <b>پیشنهادهای ویژه برای شما:</b>
-                    <button class="btn" style="background:#0088cc; color:white; margin-top:8px;" onclick="window.open('https://dedust.io/swap/EQAUEpGOGqbJy-UIxQ6qblhqAROxgDuiMeB17zImB90n6st0/DUST', '_blank')">🛒 خرید فوری از صرافی DeDust</button>
-                    <button class="btn btn-secondary" style="margin-top:8px;" onclick="window.location.href='https://t.me/zzgames_bot'">⛏️ استخراج رایگان در ربات</button>
+                    ❌ <b>Insufficient Balance!</b><br>
+                    You need ${cost} WLF tokens, but your balance is ${userBalance} WLF.<br><br>
+                    <b>Special Options For You:</b>
+                    <button class="btn" style="background:#0088cc; color:white; margin-top:8px;" onclick="window.open('https://dedust.io/swap/EQAUEpGOGqbJy-UIxQ6qblhqAROxgDuiMeB17zImB90n6st0/DUST', '_blank')">🛒 Buy Instantly on DeDust</button>
+                    <button class="btn btn-secondary" style="margin-top:8px;" onclick="openMiningBot()">⛏️ Mine Free WLF in Bot</button>
                 `;
                 document.getElementById('action-section').style.display = 'none';
             } else {
                 alert("Payment successful! Unlocking game...");
+            }
+        }
+
+        function openMiningBot() {
+            // استفاده از متد استاندارد تلگرام برای باز کردن ربات بدون خطای WebView
+            if (tg && tg.openTelegramLink) {
+                tg.openTelegramLink('https://t.me/zzgames_bot');
+            } else {
+                window.location.href = 'https://t.me/zzgames_bot';
             }
         }
     </script>
