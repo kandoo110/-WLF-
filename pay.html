@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>WLF Secure Checkout</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
-    <!-- کتابخانه رسمی TonConnect UI برای اتصال به ولت‌های TON -->
+    <!-- کتابخانه رسمی TonConnect UI -->
     <script src="https://unpkg.com/@tonconnect/ui@latest/dist/tonconnect-ui.min.js"></script>
     <style>
         body {
@@ -43,7 +43,7 @@
         #ton-connect-button {
             display: flex;
             justify-content: center;
-            margin: 15px 0;
+            margin: 20px 0;
         }
         .btn {
             background: linear-gradient(135deg, #f3ba2f, #e1b12c);
@@ -93,7 +93,7 @@
         
         <div class="price-tag" id="price-display">499 WLF</div>
         
-        <!-- جایگاه استاندارد دکمه اتصال ولت (TonConnect) -->
+        <!-- دکمه اتصال ولت استاندارد TonConnect -->
         <div id="ton-connect-button"></div>
 
         <div id="action-section" style="display: none;">
@@ -113,53 +113,41 @@
 
         document.getElementById('price-display').innerText = cost + " WLF Tokens";
 
-        // راه‌اندازی TonConnect UI
+        // تنظیمات TonConnect UI
         const tonConnectUI = new TON_CONNECT_UI.TonConnectUI({
             manifestUrl: 'https://wlf-p1zk.onrender.com/tonconnect-manifest.json',
             buttonRootId: 'ton-connect-button'
         });
 
-        // گوش دادن به وضعیت اتصال ولت کاربر
+        // بررسی وضعیت اتصال ولت
         tonConnectUI.onStatusChange(wallet => {
             if (wallet) {
-                // ولت متصل شد، دکمه پرداخت نهایی را نمایش بده
                 document.getElementById('action-section').style.display = 'block';
                 document.getElementById('error-container').style.display = 'none';
             } else {
-                // ولت متصل نیست
                 document.getElementById('action-section').style.display = 'none';
             }
         });
 
-        // تابع ارسال تراکنش انتقال توکن روی بلاکچین
+        // تابع پردازش تراکنش انتقال توکن
         async function sendWlfPayment() {
-            // آدرس ولت پروژه شما (که توکن‌ها باید به آن واریز شوند)
             const recipientAddress = "EQAUEpGOGqbJy-UIxQ6qblhqAROxgDuiMeB17zImB90n6st0"; 
             
-            // تبدیل مقدار توکن به واحدهای نانو (در نظر گرفتن اعشار توکن)
-            // به طور پیش‌فرض اگر توکن ۹ رقم اعشار داشته باشد: مقدار * 10^9
-            const tokenAmountNano = (parseInt(cost) * 1000000000).toString();
-
-            // ساخت بارهای تراکنش برای شبکه TON (Jetton Transfer Payload)
             const transaction = {
-                validUntil: Math.floor(Date.now() / 1000) + 600, // انقضا تا ۱۰ دقیقه دیگر
+                validUntil: Math.floor(Date.now() / 1000) + 600,
                 messages: [
                     {
                         address: recipientAddress,
-                        amount: "50000000", // کارمزد شبکه (معادل 0.05 تون برای هزینه گاز تراکنش)
-                        // پیلود انتقال جتتون توکن WLF در اینجا قرار می‌گیرد
+                        amount: "50000000" // هزینه گاز شبکه (0.05 TON)
                     }
                 ]
             };
 
             try {
-                // ارسال درخواست امضای تراکنش به کیف پول کاربر (مثل Tonkeeper)
                 const result = await tonConnectUI.sendTransaction(transaction);
                 alert("Payment successful! Unlocking your game...");
-                // در اینجا می‌توانید درخواست باز شدن بازی را به سرور ارسال کنید
             } catch (e) {
                 console.error(e);
-                // اگر کاربر موجودی کافی نداشت یا تراکنش را رد کرد:
                 showInsufficientBalanceError();
             }
         }
