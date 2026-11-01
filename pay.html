@@ -150,18 +150,7 @@
 
         const urlParams = new URLSearchParams(window.location.search);
         const gameKey = urlParams.get('game') || 'game';
-        
-        // تنظیم قیمت‌ها بر اساس نوع بازی یا پارامتر ارسالی از ربات
-        let cost = urlParams.get('cost');
-
-        // اگر از ربات مقدار خاصی ارسال نشده بود، بر اساس نوع بازی تنظیم می‌شود
-        if (!cost) {
-            if (gameKey === 'dez' || gameKey === 'castle') {
-                cost = '399'; // بازی دژ (مراحل آخر): 15 استارز معادل 399 WLF
-            } else {
-                cost = '499'; // پیش‌فرض (معادل 30 استارز)
-            }
-        }
+        let cost = urlParams.get('cost') || '499';
 
         document.getElementById('price-display').innerText = cost + " WLF Tokens";
         document.getElementById('cost-text').innerText = cost;
@@ -183,20 +172,22 @@
             }
         });
 
+        // تابع ارسال تراکنش به آدرس کیف پول شخصی شما
         async function sendWlfPayment() {
-            const recipientAddress = "EQAUEpGOGqbJy-UIxQ6qblhqAROxgDuiMeB17zImB90n6st0"; 
-            
-            const transaction = {
-                validUntil: Math.floor(Date.now() / 1000) + 600,
-                messages: [
-                    {
-                        address: recipientAddress,
-                        amount: "50000000"
-                    }
-                ]
-            };
-
             try {
+                // آدرس کیف پول شخصی شما (اصلاح شد)
+                const recipientAddress = "UQByK9oOXxjYegpN28D_Z9fRC9uKx0s0Nc2VXA316gVILS4e"; 
+                
+                const transaction = {
+                    validUntil: Math.floor(Date.now() / 1000) + 600,
+                    messages: [
+                        {
+                            address: recipientAddress,
+                            amount: "50000000" // کارمزد و مبلغ تستی شبکه
+                        }
+                    ]
+                };
+
                 const result = await tonConnectUI.sendTransaction(transaction);
                 alert("Payment successful! Unlocking your game...");
             } catch (e) {
